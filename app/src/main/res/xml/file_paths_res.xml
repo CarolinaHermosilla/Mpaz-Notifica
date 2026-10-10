@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Rutas que la aplicación comparte con la aplicación de la cámara para guardar
+    la foto de evidencia (ver MediaArchivo.kt).
+
+    Se eligió un archivo nuevo (file_paths_res.xml) para no tocar el archivo
+    file_paths.xml, que es de la otra integrante del equipo, y así evitar
+    conflictos al mezclar las ramas.
+-->
+<paths>
+    <!-- Carpeta temporal de la aplicación: ahí se guarda la foto recién tomada. -->
+    <cache-path
+        name="evidencias_temporales"
+        path="evidencias/" />
+
+    <!-- Carpeta propia de imágenes de la aplicación. -->
+    <files-path
+        name="evidencias"
+        path="evidencias/" />
+</paths>
