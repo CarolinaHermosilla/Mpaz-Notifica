@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Colores tomados directamente de las capturas del mockup (Informe de desarrollo 08-10-2026, páginas 3 y 4) -->
+    <color name="azul_institucional">#15406B</color>
+    <color name="azul_titulo">#083562</color>
+    <color name="azul_claro_info">#D7E3F0</color>
+    <color name="fondo_app">#F4F6F9</color>
+    <color name="texto_principal">#0B0F15</color>
+    <color name="texto_secundario">#485362</color>
+    <color name="borde_campo">#D0D7E1</color>
+    <color name="verde_fondo_estado">#D9EFE3</color>
+    <color name="verde_texto_estado">#1F734F</color>
+    <color name="blanco">#FFFFFF</color>
+</resources>

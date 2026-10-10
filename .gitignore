@@ -1,0 +1,13 @@
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/app/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+# Carpeta de trabajo interno (scripts temporales y borradores del PDF): no se sube al repositorio
+/_tools
