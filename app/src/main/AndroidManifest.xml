@@ -2,9 +2,26 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Vibración: recurso nativo que se usa al enviar una comunicación (pantalla Destinatarios).
-         La cámara y la galería las agrega el integrante que desarrolla la pantalla de Comunicación. -->
+    <!-- Vibración: recurso nativo que se usa al enviar una comunicación (pantalla Destinatarios). -->
     <uses-permission android:name="android.permission.VIBRATE" />
+
+    <!-- Cámara: recurso nativo "Cámara" que se usa para tomar la foto de evidencia
+         en la pantalla Comunicación. El permiso se pide en el momento de usarlo. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Galería: en Android 13 o superior la imagen elegida se lee con READ_MEDIA_IMAGES;
+         en Android 12 o anterior, con READ_EXTERNAL_STORAGE. -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"
+        tools:ignore="ScopedStorage" />
+
+    <!-- La aplicación no necesita cámara para funcionar: si el equipo no tiene,
+         la pantalla sigue andando y solo se desactiva el botón de la cámara. -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
 
     <application
         android:allowBackup="true"
@@ -27,6 +44,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Le entrega la foto a la aplicación de la cámara sin exponer
+             el resto de los archivos de la aplicación. -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.archivos"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths_res" />
+        </provider>
     </application>
 
 </manifest>

@@ -11,6 +11,8 @@ package com.example.mpaznotifica.ui.screens.inicio
  */
 data class InicioUiState(
     // Datos de la sesión, tal como aparecen en la captura del mockup.
+    // El nombre del profesor todavía no lo entrega nadie: cuando el Login
+    // devuelva el usuario que inició sesión, estos valores se cargan desde ahí.
     val saludo: String = SALUDO_FIJO,
     val nombreProfesor: String = NOMBRE_PROFESOR,
     val curso: String = CURSO,
