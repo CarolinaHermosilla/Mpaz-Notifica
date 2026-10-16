@@ -65,6 +65,11 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         uiState = uiState.copy(enviando = true)
 
         viewModelScope.launch {
+            // Se asegura de que las cuentas de prueba estén cargadas antes de revisar.
+            // Sin esto, si alguien alcanza a presionar "Ingresar" muy rápido (o si la
+            // base local recién se recreó), la aplicación diría que la cuenta no existe.
+            repositorio.asegurarUsuariosDePrueba()
+
             val usuario = repositorio.obtenerPorCorreo(correo)
 
             uiState = when {
