@@ -32,6 +32,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -70,9 +71,14 @@ import com.example.mpaznotifica.ui.theme.VerdeTextoEstado
  *
  * Las tarjetas y el listado se llenarán cuando existan las tablas de
  * comunicaciones y apoderados en la base de datos local.
+ *
+ * Cambio de coordinación (Carolina): la pantalla recibe "usuarioId" desde la ruta
+ * de navegación y con eso carga el saludo, el rol y el curso de la cuenta que
+ * inició sesión, en vez de tenerlos fijos en el código.
  */
 @Composable
 fun PantallaInicio(
+    usuarioId: Int,
     onNuevaComunicacion: () -> Unit,
     onVerGrupos: () -> Unit,
     onVerHistorial: () -> Unit,
@@ -80,6 +86,11 @@ fun PantallaInicio(
     viewModel: InicioViewModel = viewModel()
 ) {
     val estado = viewModel.uiState
+
+    // El id llega en la ruta de navegación, desde el Login.
+    LaunchedEffect(usuarioId) {
+        viewModel.cargarUsuario(usuarioId)
+    }
 
     Scaffold(
         containerColor = FondoApp,
@@ -95,7 +106,7 @@ fun PantallaInicio(
         ) {
             CabeceraProfesora(
                 saludo = estado.saludo,
-                nombreProfesor = estado.nombreProfesor,
+                nombreProfesor = estado.rolYCurso,
                 curso = estado.curso,
                 iniciales = estado.iniciales
             )
@@ -180,9 +191,7 @@ fun PantallaInicio(
                 Spacer(Modifier.height(18.dp))
 
                 CajaInformativa(
-                    texto = "Solo puedes enviar comunicaciones a los apoderados de 5.º Básico B. " +
-                        "Las comunicaciones institucionales y disciplinares corresponden a " +
-                        "Inspectoría General."
+                    texto = estado.textoAlcance
                 )
 
                 Spacer(Modifier.height(22.dp))

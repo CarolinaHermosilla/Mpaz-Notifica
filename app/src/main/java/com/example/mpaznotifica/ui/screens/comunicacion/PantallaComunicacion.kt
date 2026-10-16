@@ -93,6 +93,7 @@ import com.example.mpaznotifica.ui.theme.TextoSecundario
  */
 @Composable
 fun PantallaComunicacion(
+    usuarioId: Int,
     onVolver: () -> Unit,
     onContinuar: () -> Unit,
     viewModel: ComunicacionViewModel = viewModel()
@@ -100,6 +101,11 @@ fun PantallaComunicacion(
     val estado = viewModel.uiState
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
+
+    // El id llega en la ruta de navegación, desde Inicio: con eso se firma la vista previa.
+    LaunchedEffect(usuarioId) {
+        viewModel.cargarUsuario(usuarioId)
+    }
 
     // ---------- Recurso nativo Cámara ----------
     val lanzadorCamara = rememberLauncherForActivityResult(
@@ -612,7 +618,7 @@ private fun HojaVistaPrevia(
                     }
                 )
                 Spacer(Modifier.height(10.dp))
-                DatoVistaPrevia(etiqueta = "Firma", valor = ComunicacionUiState.FIRMA)
+                DatoVistaPrevia(etiqueta = "Firma", valor = estado.firma)
             }
 
             Spacer(Modifier.height(16.dp))

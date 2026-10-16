@@ -6,6 +6,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.mpaznotifica.data.local.AppDatabase
+import com.example.mpaznotifica.data.repositorio.UsuarioRepositorio
+import kotlinx.coroutines.launch
 
 /**
  * Lógica de la pantalla Comunicación.
@@ -13,11 +17,35 @@ import androidx.lifecycle.AndroidViewModel
  * Acá vive el recurso nativo Cámara (a través de [MediaArchivo]) y Galería, y
  * también las validaciones: los campos se revisan al apretar "Continuar", no en
  * la pantalla. La navegación la sigue administrando AppNavigation.
+ *
+ * Cambio de coordinación (Carolina): la firma de la vista previa se carga desde
+ * la cuenta que inició sesión, usando el id que llega en la ruta de navegación.
  */
 class ComunicacionViewModel(application: Application) : AndroidViewModel(application) {
 
+    private val repositorio = UsuarioRepositorio(
+        AppDatabase.getDatabase(application).usuarioDao()
+    )
+
     var uiState by mutableStateOf(ComunicacionUiState())
         private set
+
+    // Evita volver a consultar la base cada vez que la pantalla se redibuja.
+    private var usuarioCargado: Int? = null
+
+    /**
+     * Deja la firma de la vista previa con el nombre de quien inició sesión,
+     * para que la comunicación la firme su autor y no siempre la misma persona.
+     */
+    fun cargarUsuario(usuarioId: Int) {
+        if (usuarioCargado == usuarioId) return
+        usuarioCargado = usuarioId
+
+        viewModelScope.launch {
+            val usuario = repositorio.obtenerPorId(usuarioId) ?: return@launch
+            uiState = uiState.copy(firma = usuario.nombre)
+        }
+    }
 
     /**
      * Dirección donde la aplicación de la cámara va a escribir la foto.

@@ -3,20 +3,22 @@ package com.example.mpaznotifica.ui.screens.inicio
 /**
  * Estado de la pantalla Inicio.
  *
- * Los tres contadores y la lista de comunicaciones recientes todavía no tienen
- * de dónde leerse: las tablas de comunicaciones y de apoderados las define la
- * otra integrante del equipo en la base de datos local. Mientras eso no exista,
- * la lista va vacía y los contadores en cero, y la pantalla muestra su mensaje
- * de "todavía no hay comunicaciones".
+ * Los datos de la cabecera ya no están fijos en el código: se cargan desde la
+ * cuenta que inició sesión, usando el id que llega en la ruta de navegación.
+ * Así, si entra la profesora jefe o alguien de Inspectoría General, el saludo,
+ * el rol y el alcance de los envíos cambian solos.
+ *
+ * Los contadores y la lista de comunicaciones recientes todavía no tienen de dónde
+ * leerse: las tablas de comunicaciones y de apoderados se agregan en una etapa
+ * posterior. Mientras eso no exista, la lista va vacía y los contadores en cero.
  */
 data class InicioUiState(
-    // Datos de la sesión, tal como aparecen en la captura del mockup.
-    // El nombre del profesor todavía no lo entrega nadie: cuando el Login
-    // devuelva el usuario que inició sesión, estos valores se cargan desde ahí.
-    val saludo: String = SALUDO_FIJO,
-    val nombreProfesor: String = NOMBRE_PROFESOR,
-    val curso: String = CURSO,
-    val iniciales: String = INICIALES,
+    // Datos de la sesión (vienen de la cuenta que inició sesión).
+    val saludo: String = "",
+    val rolYCurso: String = "",
+    val curso: String = "",
+    val iniciales: String = "",
+    val textoAlcance: String = "",
 
     // Totales de las tarjetas con contador.
     val borradores: Int = 0,
@@ -25,16 +27,7 @@ data class InicioUiState(
 
     // Comunicaciones recientes que van debajo de las tarjetas.
     val comunicacionesRecientes: List<ComunicacionResumen> = emptyList()
-) {
-    companion object {
-        const val SALUDO_FIJO = "Hola, Andrea"
-        const val NOMBRE_PROFESOR = "Profesora jefe de 5.º Básico B"
-        const val CURSO = "5.º Básico B"
-
-        /** Letras del círculo del encabezado: Andrea Muñoz. */
-        const val INICIALES = "AM"
-    }
-}
+)
 
 /**
  * Resumen de una comunicación, para las tarjetas de "Comunicaciones recientes"

@@ -6,9 +6,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,16 +30,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,6 +47,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.mpaznotifica.data.repositorio.UsuarioRepositorio
 import com.example.mpaznotifica.ui.theme.AzulClaroInfo
 import com.example.mpaznotifica.ui.theme.AzulInstitucional
 import com.example.mpaznotifica.ui.theme.AzulTextoInfo
@@ -64,34 +58,14 @@ import com.example.mpaznotifica.ui.theme.FondoApp
 import com.example.mpaznotifica.ui.theme.TextoPrincipal
 import com.example.mpaznotifica.ui.theme.TextoSecundario
 
-/**
- * PANTALLA 1 - LOGIN  (Carolina)
- *
- * Es la entrada de la aplicación. Replica la captura "1. Login" del informe
- * (página 3): correo, contraseña, selector de perfil, botón Ingresar,
- * la tarjeta de la cuenta de prueba y el aviso de que no hay autenticación real.
- */
 @Composable
 fun PantallaLogin(
-    onIngresar: () -> Unit,
+    onIngresar: (Int) -> Unit,
     viewModel: LoginViewModel = viewModel()
 ) {
     val estado = viewModel.uiState
-    val snackbarHostState = remember { SnackbarHostState() }
-    val aviso = viewModel.aviso
 
-    // Muestra el aviso de Inspectoría General (o cualquier otro) como mensaje inferior.
-    LaunchedEffect(aviso) {
-        if (aviso != null) {
-            snackbarHostState.showSnackbar(aviso)
-            viewModel.onAvisoMostrado()
-        }
-    }
-
-    Scaffold(
-        containerColor = FondoApp,
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { relleno ->
+    Scaffold(containerColor = FondoApp) { relleno ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -116,7 +90,7 @@ fun PantallaLogin(
                 )
                 Spacer(Modifier.height(6.dp))
                 Text(
-                    text = "Ingresa con tu correo institucional y elige tu perfil.",
+                    text = "Ingresa con tu correo institucional y tu contraseña.",
                     color = TextoSecundario,
                     fontSize = 15.sp
                 )
@@ -145,30 +119,7 @@ fun PantallaLogin(
                     esContrasena = true
                 )
 
-                Spacer(Modifier.height(24.dp))
-
-                Text(
-                    text = "PERFIL",
-                    color = TextoSecundario,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.sp
-                )
-                Spacer(Modifier.height(10.dp))
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    PastillaPerfil(
-                        texto = LoginUiState.PERFIL_PROFESOR,
-                        seleccionada = estado.perfilSeleccionado == LoginUiState.PERFIL_PROFESOR,
-                        onClick = { viewModel.onPerfilSeleccionado(LoginUiState.PERFIL_PROFESOR) }
-                    )
-                    PastillaPerfil(
-                        texto = LoginUiState.PERFIL_INSPECTORIA,
-                        seleccionada = estado.perfilSeleccionado == LoginUiState.PERFIL_INSPECTORIA,
-                        onClick = { viewModel.onPerfilSeleccionado(LoginUiState.PERFIL_INSPECTORIA) }
-                    )
-                }
-
-                Spacer(Modifier.height(26.dp))
+                Spacer(Modifier.height(28.dp))
 
                 Button(
                     onClick = { viewModel.ingresar(onIngresar) },
@@ -199,7 +150,7 @@ fun PantallaLogin(
 
                 Spacer(Modifier.height(22.dp))
 
-                TarjetaCuentaDePrueba()
+                TarjetaCuentasDePrueba()
 
                 Spacer(Modifier.height(14.dp))
 
@@ -291,55 +242,28 @@ private fun CampoLogin(
             Icon(
                 imageVector = Icons.Filled.Warning,
                 contentDescription = "Error",
-                tint = androidx.compose.material3.MaterialTheme.colorScheme.error,
+                tint = MaterialTheme.colorScheme.error,
                 modifier = Modifier.size(16.dp)
             )
             Spacer(Modifier.size(6.dp))
             Text(
                 text = error.orEmpty(),
-                color = androidx.compose.material3.MaterialTheme.colorScheme.error,
+                color = MaterialTheme.colorScheme.error,
                 fontSize = 13.sp
             )
         }
     }
 }
 
-/** Botón con forma de pastilla para elegir el perfil. */
+/**
+ * Tarjeta blanca con las cuentas de prueba.
+ *
+ * Se muestran las dos cuentas para poder probar los dos roles, pero fijate que no
+ * son botones: la persona no elige su rol, solo entra con su cuenta y la aplicación
+ * ya sabe qué rol tiene.
+ */
 @Composable
-private fun PastillaPerfil(
-    texto: String,
-    seleccionada: Boolean,
-    onClick: () -> Unit
-) {
-    val forma = RoundedCornerShape(30.dp)
-    Box(
-        modifier = Modifier
-            .height(42.dp)
-            .clip(forma)
-            .background(if (seleccionada) AzulInstitucional else Blanco)
-            .border(
-                width = 1.dp,
-                color = if (seleccionada) AzulInstitucional else BordeCampo,
-                shape = forma
-            )
-            .clickable { onClick() }
-            .padding(horizontal = 14.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = texto,
-            color = if (seleccionada) Blanco else TextoPrincipal,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.SemiBold,
-            maxLines = 1,
-            softWrap = false
-        )
-    }
-}
-
-/** Tarjeta blanca con los datos de la cuenta de prueba. */
-@Composable
-private fun TarjetaCuentaDePrueba() {
+private fun TarjetaCuentasDePrueba() {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -356,20 +280,45 @@ private fun TarjetaCuentaDePrueba() {
         Spacer(Modifier.size(12.dp))
         Column {
             Text(
-                text = "CUENTA DE PRUEBA",
+                text = "CUENTAS DE PRUEBA",
                 color = AzulTitulo,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 letterSpacing = 0.5.sp
             )
-            Spacer(Modifier.height(6.dp))
+
+            Spacer(Modifier.height(8.dp))
             Text(
-                text = "Correo: profesor.jefe@ejemplo.cl",
+                text = UsuarioRepositorio.PERFIL_PROFESOR,
+                color = AzulTitulo,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = "Correo: ${UsuarioRepositorio.CORREO_PROFESOR}",
                 color = TextoPrincipal,
                 fontSize = 15.sp
             )
             Text(
-                text = "Contraseña: 123456",
+                text = "Contraseña: ${UsuarioRepositorio.CONTRASENA_PRUEBA}",
+                color = TextoPrincipal,
+                fontSize = 15.sp
+            )
+
+            Spacer(Modifier.height(10.dp))
+            Text(
+                text = UsuarioRepositorio.PERFIL_INSPECTORIA,
+                color = AzulTitulo,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+            Text(
+                text = "Correo: ${UsuarioRepositorio.CORREO_INSPECTOR}",
+                color = TextoPrincipal,
+                fontSize = 15.sp
+            )
+            Text(
+                text = "Contraseña: ${UsuarioRepositorio.CONTRASENA_PRUEBA}",
                 color = TextoPrincipal,
                 fontSize = 15.sp
             )

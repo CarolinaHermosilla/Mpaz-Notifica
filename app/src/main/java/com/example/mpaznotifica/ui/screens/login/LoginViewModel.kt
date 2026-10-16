@@ -16,6 +16,9 @@ import kotlinx.coroutines.launch
  *
  * Toda la validación vive acá y no en la pantalla: la vista solamente muestra
  * el estado y avisa cuando el usuario escribe o presiona un botón.
+ *
+ * El rol NO se pregunta en esta pantalla: se lee del registro del usuario en la
+ * base de datos, porque el rol lo asigna la escuela al crear la cuenta.
  */
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -26,14 +29,10 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     var uiState by mutableStateOf(LoginUiState())
         private set
 
-    /** Aviso que se muestra abajo en pantalla (por ejemplo, al tocar Inspectoría General). */
-    var aviso by mutableStateOf<String?>(null)
-        private set
-
     init {
-        // Se deja cargado el usuario de prueba en la base de datos local la primera vez.
+        // Se dejan cargadas las cuentas de prueba en la base de datos local la primera vez.
         viewModelScope.launch {
-            repositorio.asegurarUsuarioDePrueba()
+            repositorio.asegurarUsuariosDePrueba()
         }
     }
 
@@ -46,26 +45,12 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     /**
-     * El perfil de Inspectoría General todavía no está habilitado: al tocarlo
-     * se avisa y no se cambia la selección.
-     */
-    fun onPerfilSeleccionado(perfil: String) {
-        if (perfil == LoginUiState.PERFIL_INSPECTORIA) {
-            aviso = "El perfil de Inspectoría General se habilita en una etapa posterior."
-            return
-        }
-        uiState = uiState.copy(perfilSeleccionado = perfil)
-    }
-
-    fun onAvisoMostrado() {
-        aviso = null
-    }
-
-    /**
      * Valida los campos y, si están correctos, revisa el usuario en la base de datos local.
-     * Solo si las credenciales coinciden se llama a [onExito].
+     * Solo si las credenciales coinciden se llama a [onExito], entregándole el id del
+     * usuario que entró: ese id viaja en la ruta de navegación, para que la aplicación
+     * sepa qué cuenta inició sesión (y con eso, su rol).
      */
-    fun ingresar(onExito: () -> Unit) {
+    fun ingresar(onExito: (Int) -> Unit) {
         val correo = uiState.correo.trim()
         val contrasena = uiState.contrasena
 
@@ -97,7 +82,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             if (usuario != null && usuario.contrasena == contrasena) {
-                onExito()
+                onExito(usuario.id)
             }
         }
     }
