@@ -43,6 +43,40 @@ class GrupoRepositorio(
         grupoDao.borrarGrupo(grupoId)
     }
 
+    /** Revisa si ya existe un grupo con ese nombre, sin importar mayúsculas. */
+    suspend fun existeGrupoConNombre(nombre: String): Boolean {
+        return grupoDao.contarGruposConNombre(nombre.trim()) > 0
+    }
+
+    /**
+     * Crea un grupo nuevo con los apoderados marcados.
+     * Los grupos que crea el usuario no quedan marcados como "creado por el taller".
+     */
+    suspend fun crearGrupo(
+        nombre: String,
+        descripcion: String,
+        idsApoderados: List<Int>
+    ): Long {
+        val idGrupo = grupoDao.insertarGrupo(
+            GrupoEntity(
+                nombre = nombre.trim(),
+                descripcion = descripcion.trim(),
+                creadoPorTaller = false
+            )
+        )
+
+        grupoDao.insertarIntegrantes(
+            idsApoderados.map { idApoderado ->
+                GrupoApoderadoEntity(
+                    grupoId = idGrupo.toInt(),
+                    apoderadoId = idApoderado
+                )
+            }
+        )
+
+        return idGrupo
+    }
+
     /**
      * Carga los apoderados del curso y los tres grupos de ejemplo la primera vez
      * que se abre la pantalla. Los datos son ficticios, como exige el requerimiento.

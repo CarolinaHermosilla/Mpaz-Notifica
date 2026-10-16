@@ -37,6 +37,9 @@ object Rutas {
     const val NUEVO_GRUPO = "nuevo_grupo"
     const val HISTORIAL = "historial"
 
+    /** Clave con la que la pantalla de creación deja el aviso "Grupo guardado". */
+    const val AVISO_GRUPO_GUARDADO = "aviso_grupo_guardado"
+
     /** Ruta de Inicio para un usuario concreto. */
     fun inicio(usuarioId: Int) = "inicio/$usuarioId"
 }
@@ -68,17 +71,30 @@ fun AppNavigation() {
             )
         }
 
-        composable(Rutas.GRUPOS) {
+        composable(Rutas.GRUPOS) { entrada ->
+            // Aviso que deja la pantalla de creación al guardar un grupo.
+            val aviso = entrada.savedStateHandle.get<String>(Rutas.AVISO_GRUPO_GUARDADO)
+
             PantallaGrupos(
                 onVolver = { navController.popBackStack() },
-                onNuevoGrupo = { navController.navigate(Rutas.NUEVO_GRUPO) }
+                onNuevoGrupo = { navController.navigate(Rutas.NUEVO_GRUPO) },
+                aviso = aviso,
+                onAvisoMostrado = {
+                    entrada.savedStateHandle.remove<String>(Rutas.AVISO_GRUPO_GUARDADO)
+                }
             )
         }
 
         composable(Rutas.NUEVO_GRUPO) {
             PantallaNuevoGrupo(
                 onVolver = { navController.popBackStack() },
-                onGrupoGuardado = { navController.popBackStack() }
+                onGrupoGuardado = {
+                    // Se deja el aviso en la pantalla anterior y se vuelve al listado.
+                    navController.previousBackStackEntry
+                        ?.savedStateHandle
+                        ?.set(Rutas.AVISO_GRUPO_GUARDADO, "Grupo guardado")
+                    navController.popBackStack()
+                }
             )
         }
 

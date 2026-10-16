@@ -8,8 +8,11 @@ import com.example.mpaznotifica.data.local.entity.ApoderadoEntity
 @Dao
 interface ApoderadoDao {
 
-    /** Todos los apoderados del curso, ordenados por nombre. */
-    @Query("SELECT * FROM apoderados ORDER BY nombre ASC")
+    /**
+     * Todos los apoderados del curso, ordenados por estudiante
+     * (Estudiante A, B, C...), como aparecen en las capturas del mockup.
+     */
+    @Query("SELECT * FROM apoderados ORDER BY estudiante ASC")
     suspend fun obtenerTodos(): List<ApoderadoEntity>
 
     @Query("SELECT COUNT(*) FROM apoderados")
