@@ -14,6 +14,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,11 +26,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mpaznotifica.data.local.entity.ApoderadoEntity
 import com.example.mpaznotifica.data.model.GrupoConIntegrantes
 import com.example.mpaznotifica.ui.theme.AzulClaroInfo
 import com.example.mpaznotifica.ui.theme.AzulInstitucional
 import com.example.mpaznotifica.ui.theme.AzulTitulo
 import com.example.mpaznotifica.ui.theme.Blanco
+import com.example.mpaznotifica.ui.theme.BordeCampo
 import com.example.mpaznotifica.ui.theme.TextoPrincipal
 import com.example.mpaznotifica.ui.theme.TextoSecundario
 
@@ -128,4 +133,79 @@ fun TarjetaGrupo(
             }
         }
     }
+}
+
+/**
+ * Fila de un apoderado para marcarlo: su casilla, su círculo con la inicial,
+ * su nombre y su estudiante.
+ *
+ * Se usa al crear un grupo y al elegir los destinatarios de una comunicación.
+ * Toda la fila se puede tocar (no solo la casilla), porque en el teléfono
+ * apuntarle a la casilla es incómodo.
+ *
+ * @param mostrarTaller Si es true, agrega el taller del estudiante cuando tiene
+ *                      uno (así aparece en la pantalla de Destinatarios).
+ */
+@Composable
+fun FilaApoderado(
+    apoderado: ApoderadoEntity,
+    marcado: Boolean,
+    mostrarTaller: Boolean = false,
+    onMarcado: (Boolean) -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onMarcado(!marcado) }
+            .padding(vertical = 6.dp)
+    ) {
+        Checkbox(
+            checked = marcado,
+            onCheckedChange = onMarcado,
+            colors = CheckboxDefaults.colors(
+                checkedColor = AzulInstitucional,
+                uncheckedColor = TextoSecundario,
+                checkmarkColor = Blanco
+            )
+        )
+
+        Spacer(Modifier.size(8.dp))
+
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RoundedCornerShape(20.dp))
+                .background(AzulClaroInfo),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = apoderado.nombre.take(1).uppercase(),
+                color = AzulInstitucional,
+                fontSize = 17.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        Spacer(Modifier.size(12.dp))
+
+        Column {
+            Text(
+                text = apoderado.nombre,
+                color = TextoPrincipal,
+                fontSize = 16.sp
+            )
+            Text(
+                text = if (mostrarTaller && apoderado.taller != null) {
+                    "${apoderado.estudiante} · ${apoderado.taller}"
+                } else {
+                    apoderado.estudiante
+                },
+                color = TextoSecundario,
+                fontSize = 13.sp
+            )
+        }
+    }
+
+    HorizontalDivider(color = BordeCampo.copy(alpha = 0.5f))
 }

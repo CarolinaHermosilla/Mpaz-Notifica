@@ -313,7 +313,7 @@ fun PantallaComunicacion(
                     }
 
                     Button(
-                        onClick = { viewModel.continuar(onContinuar) },
+                        onClick = { viewModel.continuar(usuarioId, onContinuar) },
                         shape = RoundedCornerShape(30.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = AzulInstitucional,
@@ -338,7 +338,7 @@ fun PantallaComunicacion(
         HojaVistaPrevia(
             estado = estado,
             onCerrar = { viewModel.cerrarVistaPrevia() },
-            onContinuar = { viewModel.continuar(onContinuar) }
+            onContinuar = { viewModel.continuar(usuarioId, onContinuar) }
         )
     }
 }
