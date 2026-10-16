@@ -28,6 +28,10 @@ interface GrupoDao {
     @Query("SELECT COUNT(*) FROM grupos")
     suspend fun contarGrupos(): Int
 
+    /** Cuenta los grupos que ya tienen ese nombre, sin importar mayúsculas. */
+    @Query("SELECT COUNT(*) FROM grupos WHERE LOWER(nombre) = LOWER(:nombre)")
+    suspend fun contarGruposConNombre(nombre: String): Int
+
     /** Devuelve el id que le asignó la base de datos al grupo nuevo. */
     @Insert
     suspend fun insertarGrupo(grupo: GrupoEntity): Long

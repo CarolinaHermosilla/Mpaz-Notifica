@@ -1,8 +1,6 @@
 package com.example.mpaznotifica.ui.screens.grupos
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -29,6 +26,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -61,9 +60,8 @@ import com.example.mpaznotifica.ui.theme.TextoSecundario
  * PANTALLA 5a - GRUPOS DE APODERADOS (listado)  (Carolina)
  *
  * Replica la captura "5. Grupos guardados" del informe (página 4): la caja
- * informativa, el contador "GRUPOS DEL CURSO" y una tarjeta por grupo, con su
- * avatar, su cantidad de integrantes, su descripción y los nombres de sus
- * integrantes. El botón "+" de la barra superior lleva a crear un grupo.
+ * informativa, el contador "GRUPOS DEL CURSO" y una tarjeta por grupo. El botón
+ * "+" de la barra superior lleva a crear un grupo.
  *
  * Al tocar una tarjeta se abre una hoja inferior con el detalle del grupo y la
  * opción de eliminarlo (esta parte no está en el mockup: se acordó con el equipo).
@@ -72,9 +70,12 @@ import com.example.mpaznotifica.ui.theme.TextoSecundario
 fun PantallaGrupos(
     onVolver: () -> Unit,
     onNuevoGrupo: () -> Unit,
+    aviso: String? = null,
+    onAvisoMostrado: () -> Unit = {},
     viewModel: GruposViewModel = viewModel()
 ) {
     val estado = viewModel.uiState
+    val snackbarHostState = remember { SnackbarHostState() }
 
     // Grupo que se está mirando en el detalle y grupo que se va a eliminar.
     var grupoEnDetalle by remember { mutableStateOf<GrupoConIntegrantes?>(null) }
@@ -85,8 +86,17 @@ fun PantallaGrupos(
         viewModel.cargarGrupos()
     }
 
+    // Aviso que llega cuando se vuelve desde la pantalla de creación ("Grupo guardado").
+    LaunchedEffect(aviso) {
+        if (aviso != null) {
+            snackbarHostState.showSnackbar(aviso)
+            onAvisoMostrado()
+        }
+    }
+
     Scaffold(
         containerColor = FondoApp,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             EncabezadoApp(
                 titulo = "Grupos de apoderados",
@@ -219,97 +229,6 @@ private fun CajaInformativa() {
             color = AzulTextoInfo,
             fontSize = 15.sp
         )
-    }
-}
-
-/** Tarjeta blanca con los datos de un grupo. Al tocarla se abre su detalle. */
-@Composable
-private fun TarjetaGrupo(
-    grupo: GrupoConIntegrantes,
-    onClick: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
-            .background(Blanco)
-            .clickable(onClick = onClick)
-            .padding(16.dp)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(AzulClaroInfo),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Person,
-                    contentDescription = null,
-                    tint = AzulInstitucional,
-                    modifier = Modifier.size(22.dp)
-                )
-            }
-
-            Spacer(Modifier.size(12.dp))
-
-            Column {
-                Text(
-                    text = grupo.grupo.nombre,
-                    color = TextoPrincipal,
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold
-                )
-                Row {
-                    Text(
-                        text = "${grupo.cantidadDeIntegrantes} " +
-                            if (grupo.cantidadDeIntegrantes == 1) "integrante" else "integrantes",
-                        color = AzulTitulo,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    if (grupo.grupo.creadoPorTaller) {
-                        Text(
-                            text = " · creado por el taller",
-                            color = TextoSecundario,
-                            fontSize = 14.sp
-                        )
-                    }
-                }
-            }
-        }
-
-        if (grupo.grupo.descripcion.isNotBlank()) {
-            Spacer(Modifier.height(10.dp))
-            Text(
-                text = grupo.grupo.descripcion,
-                color = TextoSecundario,
-                fontSize = 15.sp
-            )
-        }
-
-        Spacer(Modifier.height(10.dp))
-
-        grupo.integrantes.forEach { integrante ->
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 2.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.CheckCircle,
-                    contentDescription = null,
-                    tint = AzulInstitucional,
-                    modifier = Modifier.size(18.dp)
-                )
-                Spacer(Modifier.size(8.dp))
-                Text(
-                    text = integrante.nombre,
-                    color = TextoPrincipal,
-                    fontSize = 15.sp
-                )
-            }
-        }
     }
 }
 
