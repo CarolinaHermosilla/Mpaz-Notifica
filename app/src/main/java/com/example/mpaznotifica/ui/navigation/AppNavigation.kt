@@ -32,7 +32,11 @@ object Rutas {
     /** Ruta de Comunicación para un usuario concreto (se usa para la firma de la vista previa). */
     fun comunicacion(usuarioId: Int) = "comunicacion/$usuarioId"
 
-    const val DESTINATARIOS = "destinatarios"
+    const val DESTINATARIOS = "destinatarios/{usuarioId}"
+
+    /** Ruta de Destinatarios para un usuario concreto (necesita su rol y su curso). */
+    fun destinatarios(usuarioId: Int) = "destinatarios/$usuarioId"
+
     const val GRUPOS = "grupos"
     const val NUEVO_GRUPO = "nuevo_grupo"
     const val HISTORIAL = "historial"
@@ -98,8 +102,14 @@ fun AppNavigation() {
             )
         }
 
-        composable(Rutas.DESTINATARIOS) {
+        composable(
+            route = Rutas.DESTINATARIOS,
+            arguments = listOf(navArgument(Rutas.ARG_USUARIO_ID) { type = NavType.IntType })
+        ) { entrada ->
+            val usuarioId = entrada.arguments?.getInt(Rutas.ARG_USUARIO_ID) ?: 0
+
             PantallaDestinatarios(
+                usuarioId = usuarioId,
                 onVolver = { navController.popBackStack() },
                 onComunicacionEnviada = {
                     navController.navigate(Rutas.HISTORIAL) {
@@ -138,7 +148,7 @@ fun AppNavigation() {
             PantallaComunicacion(
                 usuarioId = usuarioId,
                 onVolver = { navController.popBackStack() },
-                onContinuar = { navController.navigate(Rutas.DESTINATARIOS) }
+                onContinuar = { navController.navigate(Rutas.destinatarios(usuarioId)) }
             )
         }
 

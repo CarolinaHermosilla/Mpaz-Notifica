@@ -5,9 +5,12 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.example.mpaznotifica.data.local.dao.ApoderadoDao
+import com.example.mpaznotifica.data.local.dao.ComunicacionDao
 import com.example.mpaznotifica.data.local.dao.GrupoDao
 import com.example.mpaznotifica.data.local.dao.UsuarioDao
 import com.example.mpaznotifica.data.local.entity.ApoderadoEntity
+import com.example.mpaznotifica.data.local.entity.ComunicacionDestinatarioEntity
+import com.example.mpaznotifica.data.local.entity.ComunicacionEntity
 import com.example.mpaznotifica.data.local.entity.GrupoApoderadoEntity
 import com.example.mpaznotifica.data.local.entity.GrupoEntity
 import com.example.mpaznotifica.data.local.entity.UsuarioEntity
@@ -20,17 +23,19 @@ import com.example.mpaznotifica.data.local.entity.UsuarioEntity
  *  - apoderados: los destinatarios de las comunicaciones.
  *  - grupos: los grupos de apoderados.
  *  - grupo_apoderado: qué apoderados forman cada grupo.
- *
- * La tabla de comunicaciones se agrega cuando se desarrolle esa parte.
+ *  - comunicaciones: las comunicaciones redactadas (borrador o enviadas).
+ *  - comunicacion_destinatario: qué apoderados recibieron cada comunicación.
  */
 @Database(
     entities = [
         UsuarioEntity::class,
         ApoderadoEntity::class,
         GrupoEntity::class,
-        GrupoApoderadoEntity::class
+        GrupoApoderadoEntity::class,
+        ComunicacionEntity::class,
+        ComunicacionDestinatarioEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -40,6 +45,8 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun apoderadoDao(): ApoderadoDao
 
     abstract fun grupoDao(): GrupoDao
+
+    abstract fun comunicacionDao(): ComunicacionDao
 
     companion object {
         @Volatile

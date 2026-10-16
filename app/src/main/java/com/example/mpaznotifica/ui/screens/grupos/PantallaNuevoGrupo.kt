@@ -6,8 +6,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -24,8 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -44,7 +40,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.mpaznotifica.data.local.entity.ApoderadoEntity
 import com.example.mpaznotifica.ui.components.EncabezadoApp
 import com.example.mpaznotifica.ui.theme.AzulClaroInfo
 import com.example.mpaznotifica.ui.theme.AzulInstitucional
@@ -235,67 +230,6 @@ fun PantallaNuevoGrupo(
             Spacer(Modifier.height(16.dp))
         }
     }
-}
-
-/** Fila de un apoderado: su casilla, su círculo con la inicial y sus datos. */
-@Composable
-private fun FilaApoderado(
-    apoderado: ApoderadoEntity,
-    marcado: Boolean,
-    onMarcado: (Boolean) -> Unit
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .fillMaxWidth()
-            // Toda la fila se puede tocar, no solo la casilla: es más cómodo en el teléfono.
-            .clickable { onMarcado(!marcado) }
-            .padding(vertical = 6.dp)
-    ) {
-        Checkbox(
-            checked = marcado,
-            onCheckedChange = onMarcado,
-            colors = CheckboxDefaults.colors(
-                checkedColor = AzulInstitucional,
-                uncheckedColor = TextoSecundario,
-                checkmarkColor = Blanco
-            )
-        )
-
-        Spacer(Modifier.size(8.dp))
-
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .clip(RoundedCornerShape(20.dp))
-                .background(AzulClaroInfo),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = apoderado.nombre.take(1).uppercase(),
-                color = AzulInstitucional,
-                fontSize = 17.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Spacer(Modifier.size(12.dp))
-
-        Column {
-            Text(
-                text = apoderado.nombre,
-                color = TextoPrincipal,
-                fontSize = 16.sp
-            )
-            Text(
-                text = apoderado.estudiante,
-                color = TextoSecundario,
-                fontSize = 13.sp
-            )
-        }
-    }
-
-    HorizontalDivider(color = BordeCampo.copy(alpha = 0.5f))
 }
 
 /** Campo de texto con su mensaje de error debajo. */

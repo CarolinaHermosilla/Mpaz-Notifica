@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mpaznotifica.data.local.AppDatabase
+import com.example.mpaznotifica.data.repositorio.ComunicacionRepositorio
 import com.example.mpaznotifica.data.repositorio.UsuarioRepositorio
 import kotlinx.coroutines.launch
 
@@ -25,6 +26,11 @@ class ComunicacionViewModel(application: Application) : AndroidViewModel(applica
 
     private val repositorio = UsuarioRepositorio(
         AppDatabase.getDatabase(application).usuarioDao()
+    )
+
+    /** Guarda el borrador de la comunicación y después lo marca como enviado. */
+    private val comunicacionRepositorio = ComunicacionRepositorio(
+        AppDatabase.getDatabase(application).comunicacionDao()
     )
 
     var uiState by mutableStateOf(ComunicacionUiState())
@@ -181,8 +187,12 @@ class ComunicacionViewModel(application: Application) : AndroidViewModel(applica
     /**
      * Valida el formulario y, si está correcto, avanza a la pantalla de
      * Destinatarios, que es la que sigue en el flujo.
+     *
+     * Cambio de coordinación (Carolina): antes de avanzar se guarda el borrador
+     * de la comunicación en la base local. Así la pantalla de Destinatarios lo
+     * toma, le agrega los destinatarios y el canal, y lo deja como enviada.
      */
-    fun continuar(onContinuar: () -> Unit) {
+    fun continuar(usuarioId: Int, onContinuar: () -> Unit) {
         val titulo = uiState.titulo.trim()
         val mensaje = uiState.mensaje.trim()
 
@@ -195,13 +205,16 @@ class ComunicacionViewModel(application: Application) : AndroidViewModel(applica
         }
 
         uiState = uiState.copy(mostrarVistaPrevia = false)
-        onContinuar()
-    }
 
-    // ---------------------------------------------------------------------
-    // Punto de conexión pendiente con la base de datos local:
-    // la comunicación redactada (tipo, título, mensaje y adjuntos) todavía no
-    // se guarda. Las tablas las define el otro integrante del equipo, y le
-    // corresponde avisarle para que registre estos datos en la base.
-    // ---------------------------------------------------------------------
+        viewModelScope.launch {
+            comunicacionRepositorio.guardarBorrador(
+                titulo = titulo,
+                mensaje = mensaje,
+                tipo = uiState.tipoSeleccionado,
+                adjuntos = uiState.adjuntos.map { it.nombre },
+                usuarioId = usuarioId
+            )
+            onContinuar()
+        }
+    }
 }
