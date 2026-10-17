@@ -71,6 +71,24 @@ class ComunicacionRepositorio(private val comunicacionDao: ComunicacionDao) {
         return comunicacionDao.contarPorEstado(estado)
     }
 
+    /**
+     * Las comunicaciones que ya se enviaron, de la más nueva a la más antigua.
+     * Es lo que muestra la pantalla de Historial.
+     */
+    suspend fun obtenerComunicacionesEnviadas(): List<ComunicacionEntity> {
+        return comunicacionDao.obtenerPorEstado(ComunicacionEntity.ESTADO_ENVIADA)
+    }
+
+    /**
+     * Cuántos apoderados recibió cada comunicación, en una sola consulta.
+     * Se devuelve como un mapa (id de la comunicación -> cantidad) para poder
+     * armar el listado sin preguntar una vez por cada fila.
+     */
+    suspend fun contarDestinatariosPorComunicacion(): Map<Int, Int> {
+        return comunicacionDao.contarDestinatariosAgrupados()
+            .associate { conteo -> conteo.comunicacionId to conteo.cantidad }
+    }
+
     /** Fecha y hora actual, en el mismo formato que se muestra en pantalla. */
     private fun fechaActual(): String {
         val formato = SimpleDateFormat("dd-MM-yyyy HH:mm", Locale("es", "CL"))
