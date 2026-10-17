@@ -197,7 +197,7 @@ fun PantallaComunicacion(
 
                 Spacer(Modifier.height(18.dp))
 
-                CajaInformativaDestino()
+                CajaInformativaDestino(texto = estado.textoAlcance)
 
                 Spacer(Modifier.height(20.dp))
 
@@ -418,7 +418,7 @@ private fun iconoDeTipo(tipo: String): ImageVector {
 
 /** Caja celeste que recuerda a quiénes llega esta comunicación. */
 @Composable
-private fun CajaInformativaDestino() {
+private fun CajaInformativaDestino(texto: String) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -434,8 +434,7 @@ private fun CajaInformativaDestino() {
         )
         Spacer(Modifier.size(12.dp))
         Text(
-            text = "Se enviará a los apoderados de ${ComunicacionUiState.CURSO}. " +
-                "Los destinatarios exactos se eligen en el paso siguiente.",
+            text = texto,
             color = AzulTextoInfo,
             fontSize = 15.sp
         )
@@ -606,7 +605,7 @@ private fun HojaVistaPrevia(
                 Spacer(Modifier.height(10.dp))
                 DatoVistaPrevia(
                     etiqueta = "Destinatarios",
-                    valor = "Apoderados de ${ComunicacionUiState.CURSO}"
+                    valor = estado.textoDestinatarios
                 )
                 Spacer(Modifier.height(10.dp))
                 DatoVistaPrevia(
