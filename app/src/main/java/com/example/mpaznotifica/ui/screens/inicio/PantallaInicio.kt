@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -89,7 +90,14 @@ fun PantallaInicio(
 
     // El id llega en la ruta de navegación, desde el Login.
     LaunchedEffect(usuarioId) {
-        viewModel.cargarUsuario(usuarioId)
+        viewModel.cargar(usuarioId)
+    }
+
+    // Aviso de la captura del mockup: confirma con qué cuenta se entró.
+    val mensajeSesion = if (estado.rolYCurso.isBlank()) {
+        ""
+    } else {
+        "Sesión iniciada como ${estado.rolYCurso}"
     }
 
     Scaffold(
@@ -108,7 +116,8 @@ fun PantallaInicio(
                 saludo = estado.saludo,
                 nombreProfesor = estado.rolYCurso,
                 curso = estado.curso,
-                iniciales = estado.iniciales
+                iniciales = estado.iniciales,
+                mensajeSesion = mensajeSesion
             )
 
             Column(
@@ -200,8 +209,10 @@ fun PantallaInicio(
 
                 Spacer(Modifier.height(12.dp))
 
-                if (estado.comunicacionesRecientes.isEmpty()) {
-                    Text(
+                when {
+                    estado.cargando -> CargandoRecientes()
+
+                    estado.comunicacionesRecientes.isEmpty() -> Text(
                         text = "Todavía no hay comunicaciones recientes.",
                         color = TextoSecundario,
                         fontSize = 15.sp,
@@ -210,8 +221,8 @@ fun PantallaInicio(
                             .fillMaxWidth()
                             .padding(vertical = 20.dp)
                     )
-                } else {
-                    estado.comunicacionesRecientes.forEach { comunicacion ->
+
+                    else -> estado.comunicacionesRecientes.forEach { comunicacion ->
                         TarjetaComunicacionReciente(comunicacion = comunicacion)
                         Spacer(Modifier.height(10.dp))
                     }
@@ -221,10 +232,22 @@ fun PantallaInicio(
     }
 }
 
+/** Rueda de carga mientras se leen los contadores y las comunicaciones recientes. */
+@Composable
+private fun CargandoRecientes() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(color = AzulInstitucional)
+    }
+}
+
 /** Barra superior azul con el nombre de la aplicación y el botón Cerrar sesión. */
 @Composable
-private fun EncabezadoInicio(onCerrarSesion: () -> Unit) {
-    Row(
+private fun EncabezadoInicio(onCerrarSesion: () -> Unit) {    Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(AzulInstitucional)
@@ -259,7 +282,8 @@ private fun CabeceraProfesora(
     saludo: String,
     nombreProfesor: String,
     curso: String,
-    iniciales: String
+    iniciales: String,
+    mensajeSesion: String
 ) {
     Row(
         modifier = Modifier
@@ -282,6 +306,25 @@ private fun CabeceraProfesora(
                 color = Blanco,
                 fontSize = 15.sp
             )
+
+            if (mensajeSesion.isNotBlank()) {
+                Spacer(Modifier.height(10.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Filled.CheckCircle,
+                        contentDescription = null,
+                        tint = VerdeFondoEstado,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(Modifier.size(6.dp))
+                    Text(
+                        text = mensajeSesion,
+                        color = Blanco,
+                        fontSize = 13.sp
+                    )
+                }
+            }
+
             Spacer(Modifier.height(10.dp))
             Box(
                 modifier = Modifier

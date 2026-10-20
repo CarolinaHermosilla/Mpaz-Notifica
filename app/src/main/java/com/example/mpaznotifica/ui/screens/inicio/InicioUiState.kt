@@ -8,11 +8,14 @@ package com.example.mpaznotifica.ui.screens.inicio
  * Así, si entra la profesora jefe o alguien de Inspectoría General, el saludo,
  * el rol y el alcance de los envíos cambian solos.
  *
- * Los contadores y la lista de comunicaciones recientes todavía no tienen de dónde
- * leerse: las tablas de comunicaciones y de apoderados se agregan en una etapa
- * posterior. Mientras eso no exista, la lista va vacía y los contadores en cero.
+ * Los tres contadores y la lista de comunicaciones recientes también salen de la
+ * base de datos local: los borradores y las enviadas de la tabla de
+ * comunicaciones, y el total de apoderados de la tabla de apoderados.
  */
 data class InicioUiState(
+    /** Mientras es true, los contadores y la lista todavía se están leyendo. */
+    val cargando: Boolean = true,
+
     // Datos de la sesión (vienen de la cuenta que inició sesión).
     val saludo: String = "",
     val rolYCurso: String = "",
@@ -31,12 +34,13 @@ data class InicioUiState(
 
 /**
  * Resumen de una comunicación, para las tarjetas de "Comunicaciones recientes"
- * y también para las del Historial.
+ * de la pantalla Inicio.
  */
 data class ComunicacionResumen(
     val titulo: String,
     val tipo: String,
     val fecha: String,
+    /** Ya viene redactado para mostrarlo: por ejemplo "8 apoderados". */
     val destinatarios: String,
     val enviada: Boolean
 )

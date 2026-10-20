@@ -42,6 +42,8 @@ class ComunicacionViewModel(application: Application) : AndroidViewModel(applica
     /**
      * Deja la firma de la vista previa con el nombre de quien inició sesión,
      * para que la comunicación la firme su autor y no siempre la misma persona.
+     * Además guarda el curso y el rol, que son los que definen a quiénes llega
+     * la comunicación (una cuenta de Inspectoría General no está amarrada a un curso).
      */
     fun cargarUsuario(usuarioId: Int) {
         if (usuarioCargado == usuarioId) return
@@ -49,7 +51,14 @@ class ComunicacionViewModel(application: Application) : AndroidViewModel(applica
 
         viewModelScope.launch {
             val usuario = repositorio.obtenerPorId(usuarioId) ?: return@launch
-            uiState = uiState.copy(firma = usuario.nombre)
+            val esInspectoria = usuario.perfil == UsuarioRepositorio.PERFIL_INSPECTORIA
+
+            uiState = uiState.copy(
+                firma = usuario.nombre,
+                curso = usuario.curso,
+                rol = usuario.perfil,
+                esInspectoria = esInspectoria
+            )
         }
     }
 
