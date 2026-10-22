@@ -78,19 +78,6 @@ import com.example.mpaznotifica.ui.theme.FondoApp
 import com.example.mpaznotifica.ui.theme.TextoPrincipal
 import com.example.mpaznotifica.ui.theme.TextoSecundario
 
-/**
- * PANTALLA 3 - COMUNICACIÓN  (Pedro)
- *
- * Es la pantalla donde el profesor redacta la comunicación y le adjunta
- * evidencia. Incluye los dos recursos nativos que le tocan a esta pantalla:
- *   - Cámara: toma la foto de evidencia. La foto se guarda en una carpeta de la
- *     aplicación, a través del FileProvider declarado en el manifiesto.
- *   - Galería: elige una imagen que ya está en el teléfono.
- *
- * El informe no trae captura de esta pantalla, así que la estructura y los
- * textos se armaron con lo que sí describe el PDF, usando los mismos colores y
- * componentes que las pantallas del mockup.
- */
 @Composable
 fun PantallaComunicacion(
     usuarioId: Int,
@@ -102,12 +89,10 @@ fun PantallaComunicacion(
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // El id llega en la ruta de navegación, desde Inicio: con eso se firma la vista previa.
     LaunchedEffect(usuarioId) {
         viewModel.cargarUsuario(usuarioId)
     }
 
-    // ---------- Recurso nativo Cámara ----------
     val lanzadorCamara = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { exitoso ->
@@ -128,21 +113,18 @@ fun PantallaComunicacion(
         }
     }
 
-    // ---------- Recurso nativo Galería ----------
     val lanzadorGaleria = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
         viewModel.onImagenDeGaleriaElegida(uri)
     }
 
-    // Pide el permiso de cámara cuando el ViewModel lo indica.
     LaunchedEffect(estado.pedirPermisoCamara) {
         if (estado.pedirPermisoCamara) {
             lanzadorPermisoCamara.launch(Manifest.permission.CAMERA)
         }
     }
 
-    // Muestra el aviso (por ejemplo, permiso rechazado) como mensaje inferior.
     LaunchedEffect(estado.aviso) {
         estado.aviso?.let { texto ->
             snackbarHostState.showSnackbar(texto)
@@ -150,10 +132,6 @@ fun PantallaComunicacion(
         }
     }
 
-    /**
-     * Abre la cámara. Si el permiso todavía no está dado, primero lo pide:
-     * el permiso se pide en el momento de usarlo, no al abrir la aplicación.
-     */
     fun abrirCamara() {
         val concedido = ContextCompat.checkSelfPermission(
             context,
@@ -343,7 +321,6 @@ fun PantallaComunicacion(
     }
 }
 
-/** Título chico en mayúsculas que separa las secciones del formulario. */
 @Composable
 private fun EtiquetaSeccion(texto: String) {
     Text(
@@ -355,7 +332,6 @@ private fun EtiquetaSeccion(texto: String) {
     )
 }
 
-/** Selector del tipo de comunicación, con una fila por opción. */
 @Composable
 private fun SelectorTipo(
     tipoSeleccionado: String,
@@ -407,7 +383,6 @@ private fun SelectorTipo(
     }
 }
 
-/** Ícono de cada tipo de comunicación, con los íconos que trae el proyecto. */
 private fun iconoDeTipo(tipo: String): ImageVector {
     return when (tipo) {
         "Circular" -> Icons.Filled.Home
@@ -416,7 +391,6 @@ private fun iconoDeTipo(tipo: String): ImageVector {
     }
 }
 
-/** Caja celeste que recuerda a quiénes llega esta comunicación. */
 @Composable
 private fun CajaInformativaDestino(texto: String) {
     Row(
@@ -441,10 +415,6 @@ private fun CajaInformativaDestino(texto: String) {
     }
 }
 
-/**
- * Campo de texto con su mensaje de error debajo.
- * El mensaje aparece con una pequeña animación cuando falta algo.
- */
 @Composable
 private fun CampoTexto(
     valor: String,
@@ -500,7 +470,6 @@ private fun CampoTexto(
     }
 }
 
-/** Fila con la miniatura de una imagen adjunta y el botón para sacarla. */
 @Composable
 private fun FilaAdjunto(
     adjunto: Adjunto,
@@ -552,7 +521,6 @@ private fun FilaAdjunto(
     }
 }
 
-/** Hoja inferior que muestra cómo se verá la comunicación antes de enviarla. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HojaVistaPrevia(
@@ -683,7 +651,6 @@ private fun HojaVistaPrevia(
     }
 }
 
-/** Un dato de la vista previa, con su etiqueta arriba. */
 @Composable
 private fun DatoVistaPrevia(etiqueta: String, valor: String) {
     Column(modifier = Modifier.fillMaxWidth()) {

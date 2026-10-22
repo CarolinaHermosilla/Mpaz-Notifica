@@ -7,17 +7,6 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import android.util.Log
 
-/**
- * Recurso nativo Vibración.
- *
- * Está armado siguiendo el ejemplo de la profesora (proyecto MyAppRecursosNativos):
- *  - En Android 12 o superior el vibrador se obtiene del VibratorManager.
- *  - En versiones anteriores se usa el servicio VIBRATOR_SERVICE (que está obsoleto).
- *  - En Android 8 o superior se usa VibrationEffect.createOneShot; en versiones
- *    anteriores, el método antiguo vibrate(milisegundos).
- *
- * El permiso android.permission.VIBRATE está declarado en el manifiesto.
- */
 object Vibracion {
 
     fun vibrar(context: Context, milisegundos: Long = 500L) {

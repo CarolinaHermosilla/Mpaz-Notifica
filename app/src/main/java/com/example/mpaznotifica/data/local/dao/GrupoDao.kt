@@ -10,14 +10,9 @@ import com.example.mpaznotifica.data.local.entity.GrupoEntity
 @Dao
 interface GrupoDao {
 
-    /**
-     * Los grupos del curso, con el más nuevo primero: el grupo que se acaba de
-     * crear aparece arriba de todo.
-     */
     @Query("SELECT * FROM grupos ORDER BY id DESC")
     suspend fun obtenerGrupos(): List<GrupoEntity>
 
-    /** Integrantes de un grupo, ordenados por nombre. */
     @Query(
         "SELECT a.* FROM apoderados a " +
             "INNER JOIN grupo_apoderado ga ON ga.apoderadoId = a.id " +
@@ -28,11 +23,9 @@ interface GrupoDao {
     @Query("SELECT COUNT(*) FROM grupos")
     suspend fun contarGrupos(): Int
 
-    /** Cuenta los grupos que ya tienen ese nombre, sin importar mayúsculas. */
     @Query("SELECT COUNT(*) FROM grupos WHERE LOWER(nombre) = LOWER(:nombre)")
     suspend fun contarGruposConNombre(nombre: String): Int
 
-    /** Devuelve el id que le asignó la base de datos al grupo nuevo. */
     @Insert
     suspend fun insertarGrupo(grupo: GrupoEntity): Long
 

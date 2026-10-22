@@ -1,8 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-   Reglas de extracción de datos (Android 12 y posteriores).
-   El proyecto trabaja con datos ficticios, así que se deja el comportamiento por defecto.
--->
 <data-extraction-rules>
     <cloud-backup>
     </cloud-backup>

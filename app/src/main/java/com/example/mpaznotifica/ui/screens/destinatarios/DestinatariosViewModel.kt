@@ -15,13 +15,6 @@ import com.example.mpaznotifica.data.repositorio.UsuarioRepositorio
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-/**
- * Lógica de la pantalla Destinatarios.
- *
- * Acá viven la selección de apoderados, el canal elegido y el envío: el envío
- * muestra la animación de carga, hace vibrar el teléfono (recurso nativo
- * Vibración) y deja la comunicación guardada como enviada en la base local.
- */
 class DestinatariosViewModel(application: Application) : AndroidViewModel(application) {
 
     private val baseDatos = AppDatabase.getDatabase(application)
@@ -35,7 +28,6 @@ class DestinatariosViewModel(application: Application) : AndroidViewModel(applic
     var uiState by mutableStateOf(DestinatariosUiState())
         private set
 
-    /** Id del borrador que se va a enviar. */
     private var borradorId: Int? = null
 
     fun cargar(usuarioId: Int) {
@@ -59,7 +51,6 @@ class DestinatariosViewModel(application: Application) : AndroidViewModel(applic
         }
     }
 
-    /** Alcance "todo el curso": marca a todos los apoderados. */
     fun onTodoElCurso() {
         uiState = uiState.copy(
             idsSeleccionados = uiState.apoderados.map { it.id }.toSet(),
@@ -67,7 +58,6 @@ class DestinatariosViewModel(application: Application) : AndroidViewModel(applic
         )
     }
 
-    /** Alcance "elegir apoderados": parte sin nadie marcado para elegir a mano. */
     fun onElegirApoderados() {
         uiState = uiState.copy(
             idsSeleccionados = emptySet(),
@@ -75,10 +65,6 @@ class DestinatariosViewModel(application: Application) : AndroidViewModel(applic
         )
     }
 
-    /**
-     * Toca un grupo guardado: si sus integrantes ya estaban marcados, los saca;
-     * si no, los agrega a la selección.
-     */
     fun onGrupoTocado(grupo: GrupoConIntegrantes) {
         val idsDelGrupo = grupo.integrantes.map { it.id }.toSet()
         val yaEstabanTodos = idsDelGrupo.isNotEmpty() &&
@@ -106,10 +92,6 @@ class DestinatariosViewModel(application: Application) : AndroidViewModel(applic
         uiState = uiState.copy(canalSeleccionado = canal)
     }
 
-    /**
-     * Envía la comunicación: muestra la animación de carga, vibra y la deja
-     * guardada como enviada. Solo si todo está correcto se llama a [onExito].
-     */
     fun enviar(onExito: () -> Unit) {
         if (uiState.idsSeleccionados.isEmpty()) {
             uiState = uiState.copy(
@@ -129,10 +111,8 @@ class DestinatariosViewModel(application: Application) : AndroidViewModel(applic
         uiState = uiState.copy(enviando = true, errorDestinatarios = null)
 
         viewModelScope.launch {
-            // Animación de carga del envío (no hay servidor: se simula el tiempo de envío).
             delay(1500L)
 
-            // Vibración: recurso nativo del dispositivo, al confirmarse el envío.
             Vibracion.vibrar(getApplication(), 500L)
 
             comunicacionRepositorio.enviarComunicacion(

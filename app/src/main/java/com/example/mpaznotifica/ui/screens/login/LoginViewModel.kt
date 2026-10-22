@@ -11,15 +11,6 @@ import com.example.mpaznotifica.data.local.AppDatabase
 import com.example.mpaznotifica.data.repositorio.UsuarioRepositorio
 import kotlinx.coroutines.launch
 
-/**
- * Lógica de la pantalla de Login.
- *
- * Toda la validación vive acá y no en la pantalla: la vista solamente muestra
- * el estado y avisa cuando el usuario escribe o presiona un botón.
- *
- * El rol NO se pregunta en esta pantalla: se lee del registro del usuario en la
- * base de datos, porque el rol lo asigna la escuela al crear la cuenta.
- */
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repositorio = UsuarioRepositorio(
@@ -30,7 +21,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         private set
 
     init {
-        // Se dejan cargadas las cuentas de prueba en la base de datos local la primera vez.
         viewModelScope.launch {
             repositorio.asegurarUsuariosDePrueba()
         }
@@ -44,12 +34,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         uiState = uiState.copy(contrasena = valor, errorContrasena = null)
     }
 
-    /**
-     * Valida los campos y, si están correctos, revisa el usuario en la base de datos local.
-     * Solo si las credenciales coinciden se llama a [onExito], entregándole el id del
-     * usuario que entró: ese id viaja en la ruta de navegación, para que la aplicación
-     * sepa qué cuenta inició sesión (y con eso, su rol).
-     */
     fun ingresar(onExito: (Int) -> Unit) {
         val correo = uiState.correo.trim()
         val contrasena = uiState.contrasena
@@ -65,9 +49,6 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         uiState = uiState.copy(enviando = true)
 
         viewModelScope.launch {
-            // Se asegura de que las cuentas de prueba estén cargadas antes de revisar.
-            // Sin esto, si alguien alcanza a presionar "Ingresar" muy rápido (o si la
-            // base local recién se recreó), la aplicación diría que la cuenta no existe.
             repositorio.asegurarUsuariosDePrueba()
 
             val usuario = repositorio.obtenerPorCorreo(correo)

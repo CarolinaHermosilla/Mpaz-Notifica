@@ -4,9 +4,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
-/**
- * Esquema de colores de la aplicación, armado con los colores del mockup.
- */
 private val EsquemaClaro = lightColorScheme(
     primary = AzulInstitucional,
     onPrimary = Blanco,

@@ -21,13 +21,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mpaznotifica.ui.theme.AzulInstitucional
 
-/**
- * Barra superior azul que usan las pantallas internas.
- *
- * @param titulo   Texto que aparece a la izquierda.
- * @param onVolver Si se entrega una acción, se muestra la flecha para volver atrás.
- * @param accion   Ícono opcional a la derecha (por ejemplo, el "+" de Grupos).
- */
 @Composable
 fun EncabezadoApp(
     titulo: String,

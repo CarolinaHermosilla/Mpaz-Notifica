@@ -12,23 +12,12 @@ import com.example.mpaznotifica.data.repositorio.ComunicacionRepositorio
 import com.example.mpaznotifica.data.repositorio.UsuarioRepositorio
 import kotlinx.coroutines.launch
 
-/**
- * Lógica de la pantalla Comunicación.
- *
- * Acá vive el recurso nativo Cámara (a través de [MediaArchivo]) y Galería, y
- * también las validaciones: los campos se revisan al apretar "Continuar", no en
- * la pantalla. La navegación la sigue administrando AppNavigation.
- *
- * Cambio de coordinación (Carolina): la firma de la vista previa se carga desde
- * la cuenta que inició sesión, usando el id que llega en la ruta de navegación.
- */
 class ComunicacionViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repositorio = UsuarioRepositorio(
         AppDatabase.getDatabase(application).usuarioDao()
     )
 
-    /** Guarda el borrador de la comunicación y después lo marca como enviado. */
     private val comunicacionRepositorio = ComunicacionRepositorio(
         AppDatabase.getDatabase(application).comunicacionDao()
     )
@@ -36,15 +25,8 @@ class ComunicacionViewModel(application: Application) : AndroidViewModel(applica
     var uiState by mutableStateOf(ComunicacionUiState())
         private set
 
-    // Evita volver a consultar la base cada vez que la pantalla se redibuja.
     private var usuarioCargado: Int? = null
 
-    /**
-     * Deja la firma de la vista previa con el nombre de quien inició sesión,
-     * para que la comunicación la firme su autor y no siempre la misma persona.
-     * Además guarda el curso y el rol, que son los que definen a quiénes llega
-     * la comunicación (una cuenta de Inspectoría General no está amarrada a un curso).
-     */
     fun cargarUsuario(usuarioId: Int) {
         if (usuarioCargado == usuarioId) return
         usuarioCargado = usuarioId
@@ -62,16 +44,9 @@ class ComunicacionViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    /**
-     * Dirección donde la aplicación de la cámara va a escribir la foto.
-     * Se guarda acá y se le entrega al lanzador de la cámara desde la pantalla.
-     */
     var uriFotoPendiente: Uri? = null
         private set
 
-    // ---------------------------------------------------------------------
-    // Campos del formulario
-    // ---------------------------------------------------------------------
 
     fun onTipoSeleccionado(tipo: String) {
         uiState = uiState.copy(tipoSeleccionado = tipo)
@@ -89,14 +64,7 @@ class ComunicacionViewModel(application: Application) : AndroidViewModel(applica
         uiState = uiState.copy(aviso = null)
     }
 
-    // ---------------------------------------------------------------------
-    // Recurso nativo Cámara
-    // ---------------------------------------------------------------------
 
-    /**
-     * Prepara la dirección del archivo donde la cámara va a guardar la foto.
-     * Si no se puede, deja un aviso en vez de cerrar la aplicación.
-     */
     fun onPermisoCamaraConcedido() {
         uriFotoPendiente = try {
             MediaArchivo.uriParaCamara(getApplication())
@@ -108,7 +76,6 @@ class ComunicacionViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
-    /** El permiso de cámara fue rechazado. */
     fun onPermisoCamaraRechazado() {
         uriFotoPendiente = null
         uiState = uiState.copy(
@@ -117,21 +84,14 @@ class ComunicacionViewModel(application: Application) : AndroidViewModel(applica
         )
     }
 
-    /** Marca que hay que pedir el permiso de cámara. */
     fun pedirPermisoDeCamara() {
         uiState = uiState.copy(pedirPermisoCamara = true)
     }
 
-    /** La pantalla ya pidió el permiso: se apaga la marca para no pedirlo de nuevo. */
     fun onPermisoCamaraSolicitado() {
         uiState = uiState.copy(pedirPermisoCamara = false)
     }
 
-    /**
-     * Guarda la foto que tomó la cámara.
-     *
-     * @param exitoso true si la cámara avisó que la foto quedó guardada.
-     */
     fun onFotoTomada(exitoso: Boolean) {
         val uri = uriFotoPendiente
         uriFotoPendiente = null
@@ -151,14 +111,9 @@ class ComunicacionViewModel(application: Application) : AndroidViewModel(applica
         )
     }
 
-    // ---------------------------------------------------------------------
-    // Recurso nativo Galería
-    // ---------------------------------------------------------------------
 
-    /** Guarda la imagen que se eligió en la galería del teléfono. */
     fun onImagenDeGaleriaElegida(uri: Uri?) {
         if (uri == null) {
-            // El profesor cerró la galería sin elegir nada: no es un error.
             return
         }
 
@@ -176,14 +131,10 @@ class ComunicacionViewModel(application: Application) : AndroidViewModel(applica
         uiState = uiState.copy(adjuntos = uiState.adjuntos + adjunto)
     }
 
-    /** Saca una imagen de la lista de adjuntos. */
     fun quitarAdjunto(adjunto: Adjunto) {
         uiState = uiState.copy(adjuntos = uiState.adjuntos.filterNot { it.uri == adjunto.uri })
     }
 
-    // ---------------------------------------------------------------------
-    // Vista previa y avance al paso siguiente
-    // ---------------------------------------------------------------------
 
     fun abrirVistaPrevia() {
         uiState = uiState.copy(mostrarVistaPrevia = true)
@@ -193,14 +144,6 @@ class ComunicacionViewModel(application: Application) : AndroidViewModel(applica
         uiState = uiState.copy(mostrarVistaPrevia = false)
     }
 
-    /**
-     * Valida el formulario y, si está correcto, avanza a la pantalla de
-     * Destinatarios, que es la que sigue en el flujo.
-     *
-     * Cambio de coordinación (Carolina): antes de avanzar se guarda el borrador
-     * de la comunicación en la base local. Así la pantalla de Destinatarios lo
-     * toma, le agrega los destinatarios y el canal, y lo deja como enviada.
-     */
     fun continuar(usuarioId: Int, onContinuar: () -> Unit) {
         val titulo = uiState.titulo.trim()
         val mensaje = uiState.mensaje.trim()

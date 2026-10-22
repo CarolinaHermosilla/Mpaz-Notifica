@@ -36,15 +36,6 @@ import com.example.mpaznotifica.ui.theme.BordeCampo
 import com.example.mpaznotifica.ui.theme.TextoPrincipal
 import com.example.mpaznotifica.ui.theme.TextoSecundario
 
-/**
- * Tarjeta blanca con los datos de un grupo: avatar, nombre, cantidad de
- * integrantes, la marca de "creado por el taller", su descripción y los nombres
- * de sus integrantes.
- *
- * Se usa en el listado de grupos y también en la pantalla de creación, así que
- * vive en su propio archivo para no repetir el diseño. Si [onClick] es null, la
- * tarjeta solo se muestra (no se puede tocar).
- */
 @Composable
 fun TarjetaGrupo(
     grupo: GrupoConIntegrantes,
@@ -135,17 +126,6 @@ fun TarjetaGrupo(
     }
 }
 
-/**
- * Fila de un apoderado para marcarlo: su casilla, su círculo con la inicial,
- * su nombre y su estudiante.
- *
- * Se usa al crear un grupo y al elegir los destinatarios de una comunicación.
- * Toda la fila se puede tocar (no solo la casilla), porque en el teléfono
- * apuntarle a la casilla es incómodo.
- *
- * @param mostrarTaller Si es true, agrega el taller del estudiante cuando tiene
- *                      uno (así aparece en la pantalla de Destinatarios).
- */
 @Composable
 fun FilaApoderado(
     apoderado: ApoderadoEntity,

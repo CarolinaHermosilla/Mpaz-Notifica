@@ -14,10 +14,6 @@ import androidx.compose.ui.unit.dp
 import com.example.mpaznotifica.ui.theme.FondoApp
 import com.example.mpaznotifica.ui.theme.TextoSecundario
 
-/**
- * Pantalla temporal que se muestra mientras una vista todavía no está desarrollada.
- * Sirve para que el proyecto compile y se pueda navegar entre todas las pantallas.
- */
 @Composable
 fun EnConstruccion(titulo: String, detalle: String) {
     Scaffold(

@@ -10,13 +10,6 @@ import com.example.mpaznotifica.data.local.AppDatabase
 import com.example.mpaznotifica.data.repositorio.GrupoRepositorio
 import kotlinx.coroutines.launch
 
-/**
- * Lógica de la pantalla de creación de grupos.
- *
- * Las validaciones están acá y no en la pantalla: el nombre es obligatorio, hay
- * que marcar al menos un apoderado y no se permite repetir el nombre de un grupo
- * que ya existe.
- */
 class NuevoGrupoViewModel(application: Application) : AndroidViewModel(application) {
 
     private val baseDatos = AppDatabase.getDatabase(application)
@@ -28,7 +21,6 @@ class NuevoGrupoViewModel(application: Application) : AndroidViewModel(applicati
     var uiState by mutableStateOf(NuevoGrupoUiState())
         private set
 
-    /** Carga los apoderados del curso y los grupos que ya existen. */
     fun cargar() {
         viewModelScope.launch {
             repositorio.asegurarDatosDePrueba()
@@ -57,10 +49,6 @@ class NuevoGrupoViewModel(application: Application) : AndroidViewModel(applicati
         uiState = uiState.copy(idsSeleccionados = seleccionados, errorIntegrantes = null)
     }
 
-    /**
-     * Valida el formulario y guarda el grupo.
-     * Solo si todo está correcto se llama a [onExito].
-     */
     fun guardar(onExito: () -> Unit) {
         val nombre = uiState.nombre.trim()
 
@@ -79,7 +67,6 @@ class NuevoGrupoViewModel(application: Application) : AndroidViewModel(applicati
         uiState = uiState.copy(guardando = true)
 
         viewModelScope.launch {
-            // No se permite crear dos grupos con el mismo nombre.
             if (repositorio.existeGrupoConNombre(nombre)) {
                 uiState = uiState.copy(
                     guardando = false,

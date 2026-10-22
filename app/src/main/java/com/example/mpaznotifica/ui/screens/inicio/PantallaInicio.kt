@@ -58,25 +58,6 @@ import com.example.mpaznotifica.ui.theme.TextoSecundario
 import com.example.mpaznotifica.ui.theme.VerdeFondoEstado
 import com.example.mpaznotifica.ui.theme.VerdeTextoEstado
 
-/**
- * PANTALLA 2 - INICIO  (Pedro)
- *
- * Es la pantalla que se ve al entrar después del Login. Replica la captura
- * "2. Inicio" del informe (página 3) y está formada por:
- *   - Barra superior azul con el nombre de la aplicación y el botón Cerrar sesión.
- *   - Saludo a la profesora y su curso, con el círculo de iniciales.
- *   - Tres tarjetas con contador: Borradores, Enviadas y Apoderados.
- *   - Botón azul "Nueva comunicación" y botón con contorno "Grupos de apoderados".
- *   - Caja informativa del alcance de los envíos.
- *   - Lista "COMUNICACIONES RECIENTES" con el enlace "Ver historial".
- *
- * Las tarjetas y el listado se llenarán cuando existan las tablas de
- * comunicaciones y apoderados en la base de datos local.
- *
- * Cambio de coordinación (Carolina): la pantalla recibe "usuarioId" desde la ruta
- * de navegación y con eso carga el saludo, el rol y el curso de la cuenta que
- * inició sesión, en vez de tenerlos fijos en el código.
- */
 @Composable
 fun PantallaInicio(
     usuarioId: Int,
@@ -88,12 +69,10 @@ fun PantallaInicio(
 ) {
     val estado = viewModel.uiState
 
-    // El id llega en la ruta de navegación, desde el Login.
     LaunchedEffect(usuarioId) {
         viewModel.cargar(usuarioId)
     }
 
-    // Aviso de la captura del mockup: confirma con qué cuenta se entró.
     val mensajeSesion = if (estado.rolYCurso.isBlank()) {
         ""
     } else {
@@ -232,7 +211,6 @@ fun PantallaInicio(
     }
 }
 
-/** Rueda de carga mientras se leen los contadores y las comunicaciones recientes. */
 @Composable
 private fun CargandoRecientes() {
     Box(
@@ -245,7 +223,6 @@ private fun CargandoRecientes() {
     }
 }
 
-/** Barra superior azul con el nombre de la aplicación y el botón Cerrar sesión. */
 @Composable
 private fun EncabezadoInicio(onCerrarSesion: () -> Unit) {    Row(
         modifier = Modifier
@@ -276,7 +253,6 @@ private fun EncabezadoInicio(onCerrarSesion: () -> Unit) {    Row(
     }
 }
 
-/** Saludo a la profesora, su curso y el círculo con sus iniciales. */
 @Composable
 private fun CabeceraProfesora(
     saludo: String,
@@ -358,7 +334,6 @@ private fun CabeceraProfesora(
     }
 }
 
-/** Tarjeta blanca con un número grande, su etiqueta y un ícono. */
 @Composable
 private fun TarjetaContador(
     numero: Int,
@@ -396,7 +371,6 @@ private fun TarjetaContador(
     }
 }
 
-/** Caja celeste con el aviso del alcance de los envíos. */
 @Composable
 private fun CajaInformativa(texto: String) {
     Row(
@@ -421,7 +395,6 @@ private fun CajaInformativa(texto: String) {
     }
 }
 
-/** Título de la lista de comunicaciones con el enlace "Ver historial". */
 @Composable
 private fun FilaTituloHistorial(onVerHistorial: () -> Unit) {
     Row(
@@ -459,10 +432,6 @@ private fun FilaTituloHistorial(onVerHistorial: () -> Unit) {
     }
 }
 
-/**
- * Tarjeta de una comunicación reciente: ícono, título, tipo, fecha,
- * destinatarios y la etiqueta verde "Enviada" cuando corresponde.
- */
 @Composable
 private fun TarjetaComunicacionReciente(comunicacion: ComunicacionResumen) {
     Row(
@@ -521,7 +490,6 @@ private fun TarjetaComunicacionReciente(comunicacion: ComunicacionResumen) {
     }
 }
 
-/** Etiqueta verde que marca una comunicación ya enviada. */
 @Composable
 private fun EtiquetaEnviada() {
     Box(

@@ -50,13 +50,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
-
-    // Persistencia local con Room (Room usa SQLite por dentro)
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
-
-    // Muestra en pantalla las imágenes adjuntas (cámara y galería)
     implementation(libs.coil.compose)
 
     testImplementation(libs.junit)
