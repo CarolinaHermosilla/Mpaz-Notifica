@@ -50,17 +50,6 @@ import com.example.mpaznotifica.ui.theme.FondoApp
 import com.example.mpaznotifica.ui.theme.TextoPrincipal
 import com.example.mpaznotifica.ui.theme.TextoSecundario
 
-/**
- * PANTALLA 5b - CREACIÓN DE GRUPOS  (Carolina)
- *
- * Replica la captura "5. Creación de grupos" del informe (página 3): la lista de
- * apoderados del curso con su casilla para marcarlos, el botón "Guardar grupo" y,
- * abajo de todo, los grupos que ya existen.
- *
- * El nombre y la descripción van arriba de la lista: en la captura esa parte queda
- * fuera de la pantalla (la lista aparece desplazada), así que se armó con los
- * mismos colores y campos que el resto de la aplicación.
- */
 @Composable
 fun PantallaNuevoGrupo(
     onVolver: () -> Unit,
@@ -232,7 +221,6 @@ fun PantallaNuevoGrupo(
     }
 }
 
-/** Campo de texto con su mensaje de error debajo. */
 @Composable
 private fun CampoTexto(
     valor: String,

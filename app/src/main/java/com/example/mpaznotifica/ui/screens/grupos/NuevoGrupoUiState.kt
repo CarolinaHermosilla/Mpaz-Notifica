@@ -3,13 +3,6 @@ package com.example.mpaznotifica.ui.screens.grupos
 import com.example.mpaznotifica.data.local.entity.ApoderadoEntity
 import com.example.mpaznotifica.data.model.GrupoConIntegrantes
 
-/**
- * Estado de la pantalla de creación de grupos.
- *
- * Guarda lo que el usuario escribe, los apoderados que va marcando, los grupos
- * que ya existen (se muestran abajo, como en el mockup) y los mensajes de error
- * de cada parte del formulario.
- */
 data class NuevoGrupoUiState(
     val nombre: String = "",
     val descripcion: String = "",

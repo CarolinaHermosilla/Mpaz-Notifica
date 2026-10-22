@@ -45,16 +45,6 @@ import com.example.mpaznotifica.ui.theme.TextoSecundario
 import com.example.mpaznotifica.ui.theme.VerdeFondoEstado
 import com.example.mpaznotifica.ui.theme.VerdeTextoEstado
 
-/**
- * PANTALLA 6 - HISTORIAL DE COMUNICACIONES  (Pedro)
- *
- * Lista las comunicaciones que ya se enviaron, con su tipo, su fecha, el canal
- * por el que salieron y cuántos apoderados las recibieron.
- *
- * El informe trae esta pantalla sin captura (solo mencionada), así que se usó la
- * misma estructura visual que "Comunicaciones recientes" de la pantalla Inicio,
- * con los colores y componentes del mockup.
- */
 @Composable
 fun PantallaHistorial(
     onVolver: () -> Unit,
@@ -62,8 +52,6 @@ fun PantallaHistorial(
 ) {
     val estado = viewModel.uiState
 
-    // Se recarga cada vez que se entra a la pantalla, para que aparezca la
-    // comunicación que se acaba de enviar.
     LaunchedEffect(Unit) {
         viewModel.cargar()
     }
@@ -128,7 +116,6 @@ fun PantallaHistorial(
     }
 }
 
-/** Caja celeste con la información general del listado. */
 @Composable
 private fun CajaInformativa(texto: String) {
     Row(
@@ -153,7 +140,6 @@ private fun CajaInformativa(texto: String) {
     }
 }
 
-/** Rueda de carga mientras se leen las comunicaciones guardadas. */
 @Composable
 private fun CargandoHistorial() {
     Box(
@@ -166,7 +152,6 @@ private fun CargandoHistorial() {
     }
 }
 
-/** Mensaje que se muestra cuando todavía no se ha enviado ninguna comunicación. */
 @Composable
 private fun SinComunicaciones() {
     Column(
@@ -210,10 +195,6 @@ private fun SinComunicaciones() {
     }
 }
 
-/**
- * Tarjeta de una comunicación enviada: ícono, título, tipo, fecha, canal,
- * destinatarios y la etiqueta verde "Enviada".
- */
 @Composable
 private fun TarjetaHistorial(comunicacion: ComunicacionHistorial) {
     Row(
@@ -277,7 +258,6 @@ private fun TarjetaHistorial(comunicacion: ComunicacionHistorial) {
     }
 }
 
-/** Etiqueta celeste con el tipo de comunicación. */
 @Composable
 private fun EtiquetaTipo(texto: String) {
     Box(
@@ -295,7 +275,6 @@ private fun EtiquetaTipo(texto: String) {
     }
 }
 
-/** Etiqueta verde que marca una comunicación ya enviada. */
 @Composable
 private fun EtiquetaEnviada() {
     Box(
@@ -313,12 +292,10 @@ private fun EtiquetaEnviada() {
     }
 }
 
-/** Cómo se muestra el canal del envío (si quedó vacío, se avisa). */
 private fun canalLegible(canal: String): String {
     return if (canal.isBlank()) "Canal no registrado" else "Canal: $canal"
 }
 
-/** Cómo se muestra la cantidad de apoderados que recibieron la comunicación. */
 private fun textoDestinatarios(cantidad: Int): String {
     return when (cantidad) {
         0 -> "Sin destinatarios registrados"

@@ -15,17 +15,6 @@ import com.example.mpaznotifica.data.local.entity.GrupoApoderadoEntity
 import com.example.mpaznotifica.data.local.entity.GrupoEntity
 import com.example.mpaznotifica.data.local.entity.UsuarioEntity
 
-/**
- * Base de datos local del proyecto (Room, que por dentro usa SQLite).
- *
- * Tablas actuales:
- *  - usuarios: las cuentas que inician sesión.
- *  - apoderados: los destinatarios de las comunicaciones.
- *  - grupos: los grupos de apoderados.
- *  - grupo_apoderado: qué apoderados forman cada grupo.
- *  - comunicaciones: las comunicaciones redactadas (borrador o enviadas).
- *  - comunicacion_destinatario: qué apoderados recibieron cada comunicación.
- */
 @Database(
     entities = [
         UsuarioEntity::class,
@@ -59,8 +48,6 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "mpaz_notifica.db"
                 )
-                    // Proyecto académico: al cambiar las tablas se vuelve a crear la
-                    // base local y se cargan otra vez los datos de prueba.
                     .fallbackToDestructiveMigration(dropAllTables = true)
                     .build()
                     .also { instancia = it }

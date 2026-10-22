@@ -7,24 +7,15 @@ import com.example.mpaznotifica.data.local.entity.GrupoApoderadoEntity
 import com.example.mpaznotifica.data.local.entity.GrupoEntity
 import com.example.mpaznotifica.data.model.GrupoConIntegrantes
 
-/**
- * Repositorio de grupos y apoderados.
- *
- * Deja los datos de prueba cargados (los apoderados del curso y tres grupos de
- * ejemplo) y entrega los grupos ya armados con sus integrantes, para que la
- * pantalla no tenga que consultar la base de datos por su cuenta.
- */
 class GrupoRepositorio(
     private val grupoDao: GrupoDao,
     private val apoderadoDao: ApoderadoDao
 ) {
 
-    /** Todos los apoderados del curso, ordenados por nombre. */
     suspend fun obtenerApoderados(): List<ApoderadoEntity> {
         return apoderadoDao.obtenerTodos()
     }
 
-    /** Los grupos del curso, cada uno con su lista de integrantes. */
     suspend fun obtenerGruposConIntegrantes(): List<GrupoConIntegrantes> {
         return grupoDao.obtenerGrupos().map { grupo ->
             GrupoConIntegrantes(
@@ -34,24 +25,15 @@ class GrupoRepositorio(
         }
     }
 
-    /**
-     * Elimina un grupo y sus integrantes.
-     * Los apoderados NO se eliminan: solo se borra la relación con el grupo.
-     */
     suspend fun eliminarGrupo(grupoId: Int) {
         grupoDao.borrarIntegrantesDeGrupo(grupoId)
         grupoDao.borrarGrupo(grupoId)
     }
 
-    /** Revisa si ya existe un grupo con ese nombre, sin importar mayúsculas. */
     suspend fun existeGrupoConNombre(nombre: String): Boolean {
         return grupoDao.contarGruposConNombre(nombre.trim()) > 0
     }
 
-    /**
-     * Crea un grupo nuevo con los apoderados marcados.
-     * Los grupos que crea el usuario no quedan marcados como "creado por el taller".
-     */
     suspend fun crearGrupo(
         nombre: String,
         descripcion: String,
@@ -77,10 +59,6 @@ class GrupoRepositorio(
         return idGrupo
     }
 
-    /**
-     * Carga los apoderados del curso y los tres grupos de ejemplo la primera vez
-     * que se abre la pantalla. Los datos son ficticios, como exige el requerimiento.
-     */
     suspend fun asegurarDatosDePrueba() {
         val idsPorNombre = asegurarApoderados()
 
@@ -108,7 +86,6 @@ class GrupoRepositorio(
         }
     }
 
-    /** Carga los apoderados si la tabla está vacía y devuelve sus nombres con sus ids. */
     private suspend fun asegurarApoderados(): Map<String, Int> {
         if (apoderadoDao.contarApoderados() == 0) {
             APODERADOS_DE_PRUEBA.forEach { apoderado -> apoderadoDao.insertar(apoderado) }
@@ -116,7 +93,6 @@ class GrupoRepositorio(
         return apoderadoDao.obtenerTodos().associate { it.nombre to it.id }
     }
 
-    /** Grupo de ejemplo, con los nombres de sus integrantes. */
     private data class GrupoDePrueba(
         val nombre: String,
         val descripcion: String,
@@ -125,16 +101,11 @@ class GrupoRepositorio(
     )
 
     companion object {
-        /** El mismo curso que tiene la profesora jefe (ver UsuarioRepositorio). */
         private const val CURSO = UsuarioRepositorio.CURSO_PROFESOR
 
         const val TALLER_AJEDREZ = "Taller de Ajedrez"
         const val TALLER_TEATRO = "Taller de Teatro"
 
-        /**
-         * Los ocho apoderados del curso, con su estudiante anonimizado
-         * (Estudiante A, B, C...) y su taller cuando corresponde.
-         */
         private val APODERADOS_DE_PRUEBA = listOf(
             ApoderadoEntity(
                 nombre = "Rocío Alarcón Vega",
@@ -182,11 +153,6 @@ class GrupoRepositorio(
             )
         )
 
-        /**
-         * Los tres grupos de ejemplo, en este orden, para que en la pantalla
-         * aparezcan primero los talleres y al final la directiva (el más nuevo
-         * se muestra arriba).
-         */
         private val GRUPOS_DE_PRUEBA = listOf(
             GrupoDePrueba(
                 nombre = "Directiva del curso",

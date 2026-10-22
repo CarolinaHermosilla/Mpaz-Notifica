@@ -1,5 +1,4 @@
 [versions]
-# Versiones base tomadas del proyecto de clases MyAppNavigation (comprobadas y funcionando)
 agp = "9.3.3"
 coreKtx = "1.13.1"
 junit = "4.13.2"
@@ -13,7 +12,6 @@ composeBom = "2026.02.01"
 navigationCompose = "2.8.0"
 ksp = "2.3.10"
 room = "2.8.4"
-# Para mostrar en pantalla las imágenes adjuntas (cámara y galería)
 coil = "2.7.0"
 
 [libraries]

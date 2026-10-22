@@ -55,17 +55,6 @@ import com.example.mpaznotifica.ui.theme.FondoApp
 import com.example.mpaznotifica.ui.theme.TextoPrincipal
 import com.example.mpaznotifica.ui.theme.TextoSecundario
 
-/**
- * PANTALLA 4 - SELECCIÓN DE APODERADOS (DESTINATARIOS)  (Carolina)
- *
- * Replica la captura "4. Selección de apoderados" del informe (página 4): el
- * aviso según el rol, el alcance de la comunicación, los grupos guardados, la
- * lista de apoderados para marcarlos y la barra de envío.
- *
- * Incluye las dos funciones nativas de esta pantalla:
- *  - Animación de carga (círculo) mientras se envía la comunicación.
- *  - Vibración del dispositivo al confirmarse el envío.
- */
 @Composable
 fun PantallaDestinatarios(
     usuarioId: Int,
@@ -187,13 +176,11 @@ fun PantallaDestinatarios(
     }
 }
 
-/** Indica si todos los integrantes de un grupo están marcados. */
 private fun grupoEstaMarcado(grupo: GrupoConIntegrantes, idsSeleccionados: Set<Int>): Boolean {
     return grupo.integrantes.isNotEmpty() &&
         grupo.integrantes.all { idsSeleccionados.contains(it.id) }
 }
 
-/** Caja celeste con el aviso que corresponde al rol de quien entró. */
 @Composable
 private fun CajaAviso(texto: String) {
     Row(
@@ -218,7 +205,6 @@ private fun CajaAviso(texto: String) {
     }
 }
 
-/** Título pequeño en mayúsculas que separa las secciones. */
 @Composable
 private fun EtiquetaSeccion(texto: String) {
     Text(
@@ -230,7 +216,6 @@ private fun EtiquetaSeccion(texto: String) {
     )
 }
 
-/** Cápsula del alcance de la comunicación (todo el curso o elegir apoderados). */
 @Composable
 private fun Capsula(
     texto: String,
@@ -262,7 +247,6 @@ private fun Capsula(
     }
 }
 
-/** Cápsula de un grupo guardado, con su cantidad de integrantes. */
 @Composable
 private fun CapsulaGrupo(
     grupo: GrupoConIntegrantes,
@@ -293,10 +277,6 @@ private fun CapsulaGrupo(
     }
 }
 
-/**
- * Barra inferior con el resumen del envío, el canal, el tipo de comunicación
- * y el botón que envía (con su círculo de carga mientras se envía).
- */
 @Composable
 private fun BarraEnvio(
     estado: DestinatariosUiState,
@@ -382,7 +362,6 @@ private fun BarraEnvio(
                     .height(52.dp)
             ) {
                 if (estado.enviando) {
-                    // Animación de carga del envío.
                     CircularProgressIndicator(
                         color = Blanco,
                         strokeWidth = 2.5.dp,
@@ -408,7 +387,6 @@ private fun BarraEnvio(
     }
 }
 
-/** Cápsula del canal de envío (correo, SMS o WhatsApp). */
 @Composable
 private fun CapsulaCanal(
     texto: String,

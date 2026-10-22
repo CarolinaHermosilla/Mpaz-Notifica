@@ -13,20 +13,6 @@ import com.example.mpaznotifica.data.repositorio.GrupoRepositorio
 import com.example.mpaznotifica.data.repositorio.UsuarioRepositorio
 import kotlinx.coroutines.launch
 
-/**
- * Lógica de la pantalla Inicio.
- *
- * La cabecera (saludo, rol, curso e iniciales) se arma a partir de la cuenta que
- * inició sesión: el Login entrega el id del usuario en la ruta y acá se consulta
- * en la base de datos local. Nadie elige su rol en ninguna pantalla.
- *
- * Los contadores y las comunicaciones recientes también salen de la base local:
- * los borradores y las enviadas de la tabla de comunicaciones, y el total de
- * apoderados de la tabla de apoderados.
- *
- * Nota de coordinación (Carolina): el nombre del campo "rolYCurso" reemplaza al
- * antiguo "nombreProfesor", que estaba fijo en el código.
- */
 class InicioViewModel(application: Application) : AndroidViewModel(application) {
 
     private val baseDatos = AppDatabase.getDatabase(application)
@@ -41,15 +27,8 @@ class InicioViewModel(application: Application) : AndroidViewModel(application) 
     var uiState by mutableStateOf(InicioUiState())
         private set
 
-    /**
-     * Carga los datos de la cuenta que inició sesión, los tres contadores y la
-     * lista de comunicaciones recientes. Se vuelve a llamar cada vez que se entra
-     * a la pantalla, para que los totales queden al día después de enviar.
-     */
     fun cargar(usuarioId: Int) {
         viewModelScope.launch {
-            // Los apoderados del curso son datos de ejemplo que se cargan solos.
-            // Se aseguran acá para que el contador de apoderados nunca muestre cero.
             grupoRepositorio.asegurarDatosDePrueba()
 
             val usuario = usuarioRepositorio.obtenerPorId(usuarioId)
@@ -89,10 +68,6 @@ class InicioViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    /**
-     * Las últimas comunicaciones enviadas, con su tipo, su fecha y cuántos
-     * apoderados las recibieron. Son las que se ven en "Comunicaciones recientes".
-     */
     private suspend fun comunicacionesRecientes(): List<ComunicacionResumen> {
         val enviadas = comunicacionRepositorio.obtenerComunicacionesEnviadas()
         val cantidades = comunicacionRepositorio.contarDestinatariosPorComunicacion()
@@ -112,12 +87,10 @@ class InicioViewModel(application: Application) : AndroidViewModel(application) 
         return perfil == UsuarioRepositorio.PERFIL_INSPECTORIA
     }
 
-    /** Primer nombre de la persona, para el saludo. */
     private fun primerNombre(nombreCompleto: String): String {
         return nombreCompleto.trim().split(" ").firstOrNull().orEmpty()
     }
 
-    /** Toma la primera letra del nombre y del apellido, por ejemplo "Andrea Muñoz" -> "AM". */
     private fun inicialesDe(nombreCompleto: String): String {
         val partes = nombreCompleto.trim().split(" ").filter { it.isNotBlank() }
         return when {
@@ -127,7 +100,6 @@ class InicioViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    /** Cómo se muestra la cantidad de apoderados que recibieron una comunicación. */
     private fun textoDestinatarios(cantidad: Int): String {
         return when (cantidad) {
             0 -> "Sin destinatarios registrados"
@@ -136,16 +108,13 @@ class InicioViewModel(application: Application) : AndroidViewModel(application) 
         }
     }
 
-    /** Acción del botón "Cerrar sesión" del encabezado. */
     fun cerrarSesion(onListo: () -> Unit) {
         onListo()
     }
 
     companion object {
-        /** Cuántas comunicaciones recientes se muestran en la pantalla Inicio. */
         private const val MAXIMO_RECIENTES = 3
 
-        /** Alcance de los envíos cuando la cuenta es de Inspectoría General. */
         const val TEXTO_ALCANCE_INSPECTORIA =
             "Puedes enviar comunicaciones a todo el colegio, a un curso, a un apoderado " +
                 "o a los apoderados de un taller."

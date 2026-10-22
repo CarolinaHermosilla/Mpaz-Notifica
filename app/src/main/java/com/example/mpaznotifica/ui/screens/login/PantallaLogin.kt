@@ -163,7 +163,6 @@ fun PantallaLogin(
     }
 }
 
-/** Encabezado azul con el nombre de la aplicación, el colegio y la bajada. */
 @Composable
 private fun BannerLogin() {
     Column(
@@ -194,10 +193,6 @@ private fun BannerLogin() {
     }
 }
 
-/**
- * Campo de texto del Login, con su ícono y su mensaje de error debajo.
- * El mensaje aparece con una pequeña animación cuando hay un problema.
- */
 @Composable
 private fun CampoLogin(
     valor: String,
@@ -255,13 +250,6 @@ private fun CampoLogin(
     }
 }
 
-/**
- * Tarjeta blanca con las cuentas de prueba.
- *
- * Se muestran las dos cuentas para poder probar los dos roles, pero fijate que no
- * son botones: la persona no elige su rol, solo entra con su cuenta y la aplicación
- * ya sabe qué rol tiene.
- */
 @Composable
 private fun TarjetaCuentasDePrueba() {
     Row(
@@ -326,7 +314,6 @@ private fun TarjetaCuentasDePrueba() {
     }
 }
 
-/** Caja celeste de información. */
 @Composable
 private fun CajaAviso(texto: String) {
     Row(

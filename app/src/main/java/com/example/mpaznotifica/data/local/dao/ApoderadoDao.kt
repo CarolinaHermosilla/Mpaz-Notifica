@@ -8,17 +8,12 @@ import com.example.mpaznotifica.data.local.entity.ApoderadoEntity
 @Dao
 interface ApoderadoDao {
 
-    /**
-     * Todos los apoderados del curso, ordenados por estudiante
-     * (Estudiante A, B, C...), como aparecen en las capturas del mockup.
-     */
     @Query("SELECT * FROM apoderados ORDER BY estudiante ASC")
     suspend fun obtenerTodos(): List<ApoderadoEntity>
 
     @Query("SELECT COUNT(*) FROM apoderados")
     suspend fun contarApoderados(): Int
 
-    /** Devuelve el id que le asignó la base de datos al apoderado nuevo. */
     @Insert
     suspend fun insertar(apoderado: ApoderadoEntity): Long
 }

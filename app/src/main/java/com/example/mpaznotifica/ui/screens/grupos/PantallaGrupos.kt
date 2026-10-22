@@ -56,16 +56,6 @@ import com.example.mpaznotifica.ui.theme.FondoApp
 import com.example.mpaznotifica.ui.theme.TextoPrincipal
 import com.example.mpaznotifica.ui.theme.TextoSecundario
 
-/**
- * PANTALLA 5a - GRUPOS DE APODERADOS (listado)  (Carolina)
- *
- * Replica la captura "5. Grupos guardados" del informe (página 4): la caja
- * informativa, el contador "GRUPOS DEL CURSO" y una tarjeta por grupo. El botón
- * "+" de la barra superior lleva a crear un grupo.
- *
- * Al tocar una tarjeta se abre una hoja inferior con el detalle del grupo y la
- * opción de eliminarlo (esta parte no está en el mockup: se acordó con el equipo).
- */
 @Composable
 fun PantallaGrupos(
     onVolver: () -> Unit,
@@ -77,16 +67,13 @@ fun PantallaGrupos(
     val estado = viewModel.uiState
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Grupo que se está mirando en el detalle y grupo que se va a eliminar.
     var grupoEnDetalle by remember { mutableStateOf<GrupoConIntegrantes?>(null) }
     var grupoAEliminar by remember { mutableStateOf<GrupoConIntegrantes?>(null) }
 
-    // Se vuelve a cargar al entrar a la pantalla, para ver los grupos recién creados.
     LaunchedEffect(Unit) {
         viewModel.cargarGrupos()
     }
 
-    // Aviso que llega cuando se vuelve desde la pantalla de creación ("Grupo guardado").
     LaunchedEffect(aviso) {
         if (aviso != null) {
             snackbarHostState.showSnackbar(aviso)
@@ -162,7 +149,6 @@ fun PantallaGrupos(
         }
     }
 
-    // ---------- Detalle del grupo ----------
     grupoEnDetalle?.let { grupo ->
         HojaDetalleGrupo(
             grupo = grupo,
@@ -171,7 +157,6 @@ fun PantallaGrupos(
         )
     }
 
-    // ---------- Confirmación antes de eliminar ----------
     grupoAEliminar?.let { grupo ->
         AlertDialog(
             onDismissRequest = { grupoAEliminar = null },
@@ -205,7 +190,6 @@ fun PantallaGrupos(
     }
 }
 
-/** Caja celeste que explica para qué sirve un grupo. */
 @Composable
 private fun CajaInformativa() {
     Row(
@@ -232,7 +216,6 @@ private fun CajaInformativa() {
     }
 }
 
-/** Hoja inferior con el detalle del grupo y la opción de eliminarlo. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HojaDetalleGrupo(
