@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Colores tomados directamente de las capturas del mockup (Informe de desarrollo 08-10-2026, páginas 3 y 4) -->
+ 
     <color name="azul_institucional">#15406B</color>
     <color name="azul_titulo">#083562</color>
     <color name="azul_claro_info">#D7E3F0</color>
