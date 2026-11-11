@@ -9,6 +9,7 @@ import com.example.mpaznotifica.data.remoto.EnvioDto
 import com.example.mpaznotifica.data.remoto.EnvioUnificado
 import com.example.mpaznotifica.data.remoto.MensajeDto
 import com.example.mpaznotifica.data.remoto.NuevoMensajeDto
+import com.example.mpaznotifica.data.remoto.NuevoRegistroDto
 import com.example.mpaznotifica.data.remoto.RegistroDto
 
 /**
@@ -47,14 +48,20 @@ class ComunicacionRepositorio(
 
     /**
      * Envía la comunicación con su canal y sus destinatarios.
-     * El servidor la deja como "Enviada" y devuelve la fecha.
+     *
+     * Primero se confirma el envío en ms-mensajeria (que la deja como "Enviada")
+     * y después se registra el envío en ms-historial. Son dos servicios distintos:
+     * ms-mensajeria no avisa por su cuenta al historial, así que la aplicación
+     * hace el registro con los datos que devolvió el envío.
      */
     suspend fun enviarComunicacion(
         mensajeId: Long,
         canal: String,
+        remitenteId: Int,
+        remitenteNombre: String,
         destinatarios: List<Pair<Int, String>>
     ): MensajeDto {
-        return mensajeria.enviar(
+        val enviado = mensajeria.enviar(
             mensajeId,
             EnvioDto(
                 canal = canal,
@@ -63,6 +70,23 @@ class ComunicacionRepositorio(
                 }
             )
         )
+
+        // El registro del historial es aparte: si falla, el envío igual quedó hecho.
+        runCatching {
+            historial.registrar(
+                NuevoRegistroDto(
+                    mensajeId = enviado.id,
+                    titulo = enviado.titulo,
+                    tipo = enviado.tipo,
+                    canal = enviado.canal ?: canal,
+                    remitenteId = remitenteId.toLong(),
+                    remitenteNombre = remitenteNombre,
+                    destinatarios = destinatarios.map { it.second }
+                )
+            )
+        }
+
+        return enviado
     }
 
     /** Comunicaciones del usuario, según ms-mensajeria (incluye los borradores). */
@@ -70,9 +94,9 @@ class ComunicacionRepositorio(
         return mensajeria.porRemitente(remitenteId.toLong())
     }
 
-    /** Todo lo enviado, de lo más nuevo a lo más antiguo, según ms-historial. */
-    suspend fun obtenerEnviadas(): List<RegistroDto> {
-        return historial.registros()
+    /** Historial del usuario, de lo más nuevo a lo más antiguo. */
+    suspend fun obtenerEnviadas(remitenteId: Int): List<RegistroDto> {
+        return historial.registros(remitenteId.toLong())
     }
 
     /**
@@ -81,22 +105,24 @@ class ComunicacionRepositorio(
      * ms-historial es la fuente principal, pero ms-mensajeria también sabe qué
      * mensajes quedaron con estado "Enviada". Se juntan los dos y se descartan
      * los repetidos por id de mensaje: así el Historial no pierde una comunicación
-     * aunque un servicio no haya alcanzado a avisar al otro.
+     * si el registro del historial no alcanzó a quedar.
      */
     suspend fun obtenerEnvios(remitenteId: Int): List<EnvioUnificado> {
         val combinados = LinkedHashMap<Long, EnvioUnificado>()
 
-        // Primero los registros del historial, que traen la lista de destinatarios.
-        runCatching { historial.registros() }.getOrDefault(emptyList()).forEach { registro ->
-            combinados[registro.mensajeId] = EnvioUnificado(
-                mensajeId = registro.mensajeId,
-                titulo = registro.titulo,
-                tipo = registro.tipo,
-                canal = registro.canal,
-                fecha = registro.fecha,
-                cantidadDestinatarios = registro.cantidadDestinatarios
-            )
-        }
+        // Primero los registros del historial del usuario, que traen sus destinatarios.
+        runCatching { historial.registros(remitenteId.toLong()) }
+            .getOrDefault(emptyList())
+            .forEach { registro ->
+                combinados[registro.mensajeId] = EnvioUnificado(
+                    mensajeId = registro.mensajeId,
+                    titulo = registro.titulo,
+                    tipo = registro.tipo,
+                    canal = registro.canal,
+                    fecha = registro.fecha,
+                    cantidadDestinatarios = registro.cantidadDestinatarios
+                )
+            }
 
         // Después los enviados de mensajería, que cubren lo que falte en el historial.
         runCatching { mensajeria.porRemitente(remitenteId.toLong()) }

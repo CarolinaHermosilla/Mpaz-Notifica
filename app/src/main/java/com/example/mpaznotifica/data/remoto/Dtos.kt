@@ -86,8 +86,7 @@ data class MensajeDto(
 
 // ---------- ms-historial ----------
 
-data class RegistroDto(
-    val id: Long,
+data class RegistroDto(    val id: Long,
     val mensajeId: Long,
     val titulo: String,
     val tipo: String,
@@ -97,4 +96,20 @@ data class RegistroDto(
     val remitenteNombre: String,
     val cantidadDestinatarios: Int = 0,
     val destinatarios: List<String> = emptyList()
+)
+
+/**
+ * Cuerpo con el que la aplicación registra un envío en ms-historial.
+ *
+ * No se manda la fecha ni la cantidad de destinatarios: el servidor pone la
+ * fecha del momento y cuenta los nombres de la lista.
+ */
+data class NuevoRegistroDto(
+    val mensajeId: Long,
+    val titulo: String,
+    val tipo: String,
+    val canal: String,
+    val remitenteId: Long,
+    val remitenteNombre: String,
+    val destinatarios: List<String>
 )

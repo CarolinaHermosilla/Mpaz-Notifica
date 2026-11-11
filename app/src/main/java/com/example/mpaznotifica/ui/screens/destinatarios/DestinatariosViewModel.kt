@@ -39,10 +39,16 @@ class DestinatariosViewModel(application: Application) : AndroidViewModel(applic
 
     private var borradorId: Int? = null
 
+    /** Quién envía: se usa para firmar el registro del historial. */
+    private var remitenteId: Int = 0
+    private var remitenteNombre: String = ""
+
     fun cargar(usuarioId: Int) {
         viewModelScope.launch {
             try {
                 val usuario = usuarioRepositorio.obtenerPorId(usuarioId)
+                remitenteId = usuarioId
+                remitenteNombre = usuario?.nombre.orEmpty()
                 val apoderados = grupoRepositorio.obtenerApoderados()
                 val grupos = grupoRepositorio.obtenerGruposConIntegrantes()
 
@@ -146,6 +152,8 @@ class DestinatariosViewModel(application: Application) : AndroidViewModel(applic
                 comunicacionRepositorio.enviarComunicacion(
                     mensajeId = idBorrador.toLong(),
                     canal = uiState.canalSeleccionado,
+                    remitenteId = remitenteId,
+                    remitenteNombre = remitenteNombre,
                     destinatarios = destinatarios
                 )
 

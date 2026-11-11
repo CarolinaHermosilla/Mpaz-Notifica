@@ -42,6 +42,17 @@ interface ApiMensajeria {
 
 interface ApiHistorial {
 
+    /** Historial del usuario: el servicio filtra por remitente. */
     @GET("api/historial")
-    suspend fun registros(): List<RegistroDto>
+    suspend fun registros(@Query("remitenteId") remitenteId: Long): List<RegistroDto>
+
+    /**
+     * Registra un envío en el historial.
+     *
+     * ms-mensajeria deja la comunicación como "Enviada", pero no avisa por su
+     * cuenta a ms-historial: la aplicación registra el envío después de enviarlo.
+     * El servidor completa la fecha y cuenta los destinatarios de la lista.
+     */
+    @POST("api/historial")
+    suspend fun registrar(@Body cuerpo: NuevoRegistroDto): RegistroDto
 }

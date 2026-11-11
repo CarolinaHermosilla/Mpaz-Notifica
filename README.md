@@ -231,15 +231,23 @@ En la rama `documents` del repositorio están los dos diagramas que pide la rúb
 - **Las cuentas solo nacen en el servidor.** La aplicación no puede inventar usuarios ni roles.
 - **El borrador y el envío viven en el servidor.** Al presionar "Continuar" se crea el borrador en
   `ms-mensajeria`; en Destinatarios se envía con el canal y los destinatarios.
-- **El Historial une dos fuentes.** `ms-historial` y `ms-mensajeria` saben qué se envió; la aplicación
-  junta los dos para no perder ninguna comunicación.
+- **El Historial une dos fuentes.** `ms-historial` es la fuente principal, pero
+  `ms-mensajeria` también sabe qué mensajes quedaron enviados. La aplicación junta los dos
+  y descarta los repetidos por id de mensaje, para no perder ninguna comunicación.
+- **El envío se registra en el historial.** Al confirmar el envío, `ms-mensajeria` deja la
+  comunicación como "Enviada" y la aplicación registra el envío en `ms-historial` con
+  `POST /api/historial`. Son servicios separados y el registro del historial es aparte: si
+  falla, el envío ya quedó hecho.
+- **El historial se pide filtrado.** Cada cuenta ve solo sus envíos, con
+  `GET /api/historial?remitenteId=`. La cuenta de Inspectoría General no ve los envíos de
+  la profesora jefe.
 - **Datos ficticios y anonimizados.** No se usan nombres, RUT ni contactos reales de estudiantes ni
   apoderados, conforme a la regla de protección de datos del requerimiento.
 
 ## Limitaciones conocidas
 
 - **El envío sigue siendo simulado:** no se envían correos, SMS ni mensajes de WhatsApp reales. El
-  servidor registra el envío con su canal y sus destinatarios.
+  servidor registra el envío con su canal y sus destinatarios, y queda en el historial.
 - **Adjuntos:** se guarda el nombre de las imágenes adjuntas; el archivo no se sube al servidor.
 - **La creación de cuentas** (con el código por SMS para asignar el rol) queda como etapa siguiente.
 - **La base local usa migración destructiva:** si se cambia la estructura de las tablas, se vuelve a
