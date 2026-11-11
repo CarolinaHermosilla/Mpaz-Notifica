@@ -102,15 +102,16 @@ class ComunicacionRepositorio(
     /**
      * Los envíos vistos desde los dos servicios.
      *
-     * ms-historial es la fuente principal, pero ms-mensajeria también sabe qué
-     * mensajes quedaron con estado "Enviada". Se juntan los dos y se descartan
-     * los repetidos por id de mensaje: así el Historial no pierde una comunicación
-     * si el registro del historial no alcanzó a quedar.
+     * ms-historial es la fuente principal y ya devuelve los registros de lo más
+     * nuevo a lo más antiguo, así que se respeta ese orden. Después se agregan
+     * los enviados de ms-mensajeria que no estén en el historial (los envíos
+     * hechos antes de que existiera el registro), para no perder ninguna
+     * comunicación. Se descartan los repetidos por id de mensaje.
      */
     suspend fun obtenerEnvios(remitenteId: Int): List<EnvioUnificado> {
         val combinados = LinkedHashMap<Long, EnvioUnificado>()
 
-        // Primero los registros del historial del usuario, que traen sus destinatarios.
+        // Primero los registros del historial del usuario, en el orden que entrega.
         runCatching { historial.registros(remitenteId.toLong()) }
             .getOrDefault(emptyList())
             .forEach { registro ->
@@ -124,10 +125,11 @@ class ComunicacionRepositorio(
                 )
             }
 
-        // Después los enviados de mensajería, que cubren lo que falte en el historial.
+        // Después los enviados de mensajería, del más nuevo al más antiguo.
         runCatching { mensajeria.porRemitente(remitenteId.toLong()) }
             .getOrDefault(emptyList())
             .filter { it.estado == ESTADO_ENVIADA }
+            .sortedByDescending { it.id }
             .forEach { mensaje ->
                 if (!combinados.containsKey(mensaje.id)) {
                     combinados[mensaje.id] = EnvioUnificado(
@@ -141,8 +143,7 @@ class ComunicacionRepositorio(
                 }
             }
 
-        return combinados.values
-            .sortedByDescending { it.mensajeId }
+        return combinados.values.toList()
     }
 
     companion object {

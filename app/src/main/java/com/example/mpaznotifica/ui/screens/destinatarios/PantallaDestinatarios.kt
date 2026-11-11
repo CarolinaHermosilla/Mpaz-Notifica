@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -283,10 +284,27 @@ private fun BarraEnvio(
     onCanalSeleccionado: (String) -> Unit,
     onEnviar: () -> Unit
 ) {
-    Column(modifier = Modifier.fillMaxWidth().background(Blanco)) {
+    // La aplicación ocupa toda la pantalla (enableEdgeToEdge), así que la barra
+    // reserva el alto de los botones de navegación de Android; sin esto el botón
+    // "Enviar comunicación" queda tapado por ellos.
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Blanco)
+            .navigationBarsPadding()
+    ) {
         HorizontalDivider(color = BordeCampo)
 
-        Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp)) {
+        Column(
+            modifier = Modifier.padding(
+                start = 20.dp,
+                end = 20.dp,
+                top = 14.dp,
+                // Un poco más de aire abajo, para que el botón no quede pegado
+                // a los botones de navegación del teléfono.
+                bottom = 22.dp
+            )
+        ) {
             Text(
                 text = if (estado.cantidadSeleccionados == 0) {
                     "No hay apoderados marcados"
