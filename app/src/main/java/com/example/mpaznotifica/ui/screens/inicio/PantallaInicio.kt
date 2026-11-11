@@ -31,9 +31,12 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +48,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.mpaznotifica.ui.theme.AzulClaroInfo
 import com.example.mpaznotifica.ui.theme.AzulInstitucional
@@ -68,9 +72,21 @@ fun PantallaInicio(
     viewModel: InicioViewModel = viewModel()
 ) {
     val estado = viewModel.uiState
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(usuarioId) {
+    // Se recarga cada vez que la pantalla vuelve a estar visible: así los
+    // contadores quedan al día después de enviar una comunicación.
+    LifecycleResumeEffect(usuarioId) {
         viewModel.cargar(usuarioId)
+        onPauseOrDispose { }
+    }
+
+    // Aviso cuando el servidor no responde.
+    LaunchedEffect(estado.aviso) {
+        estado.aviso?.let { texto ->
+            snackbarHostState.showSnackbar(texto)
+            viewModel.onAvisoMostrado()
+        }
     }
 
     val mensajeSesion = if (estado.rolYCurso.isBlank()) {
@@ -83,7 +99,8 @@ fun PantallaInicio(
         containerColor = FondoApp,
         topBar = {
             EncabezadoInicio(onCerrarSesion = { viewModel.cerrarSesion(onCerrarSesion) })
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { relleno ->
         Column(
             modifier = Modifier

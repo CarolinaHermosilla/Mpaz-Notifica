@@ -7,9 +7,18 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mpaznotifica.data.local.AppDatabase
+import com.example.mpaznotifica.data.remoto.ErroresRed
 import com.example.mpaznotifica.data.repositorio.ComunicacionRepositorio
+import com.example.mpaznotifica.data.sesion.SesionPreferencias
 import kotlinx.coroutines.launch
 
+/**
+ * Lógica de la pantalla Historial.
+ *
+ * Junta los envíos de ms-historial y de ms-mensajeria, porque los dos servicios
+ * saben qué comunicaciones quedaron enviadas. Se descartan los repetidos, así
+ * ninguna comunicación se pierde del listado.
+ */
 class HistorialViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repositorio = ComunicacionRepositorio(
@@ -21,21 +30,29 @@ class HistorialViewModel(application: Application) : AndroidViewModel(applicatio
 
     fun cargar() {
         viewModelScope.launch {
-            val enviadas = repositorio.obtenerComunicacionesEnviadas()
-            val cantidades = repositorio.contarDestinatariosPorComunicacion()
+            val usuarioId = SesionPreferencias.usuarioId(getApplication())
 
-            uiState = HistorialUiState(
-                cargando = false,
-                comunicaciones = enviadas.map { comunicacion ->
-                    ComunicacionHistorial(
-                        titulo = comunicacion.titulo,
-                        tipo = comunicacion.tipo,
-                        fecha = comunicacion.fecha,
-                        canal = comunicacion.canal,
-                        destinatarios = cantidades[comunicacion.id] ?: 0
-                    )
-                }
-            )
+            try {
+                val envios = repositorio.obtenerEnvios(usuarioId)
+
+                uiState = HistorialUiState(
+                    cargando = false,
+                    comunicaciones = envios.map { envio ->
+                        ComunicacionHistorial(
+                            titulo = envio.titulo,
+                            tipo = envio.tipo,
+                            fecha = ErroresRed.formatearFecha(envio.fecha),
+                            canal = envio.canal,
+                            destinatarios = envio.cantidadDestinatarios
+                        )
+                    }
+                )
+            } catch (error: Exception) {
+                uiState = HistorialUiState(
+                    cargando = false,
+                    error = ErroresRed.mensaje(error)
+                )
+            }
         }
     }
 }

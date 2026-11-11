@@ -13,7 +13,10 @@ data class InicioUiState(
     val enviadas: Int = 0,
     val apoderados: Int = 0,
 
-    val comunicacionesRecientes: List<ComunicacionResumen> = emptyList()
+    val comunicacionesRecientes: List<ComunicacionResumen> = emptyList(),
+
+    /** Aviso cuando no se pudo conectar con el servidor. */
+    val aviso: String? = null
 )
 
 data class ComunicacionResumen(

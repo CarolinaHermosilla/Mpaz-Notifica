@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <!-- Conexión con los microservicios del backend (las tres direcciones son https). -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <uses-permission android:name="android.permission.CAMERA" />
 

@@ -34,8 +34,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,8 +68,20 @@ fun PantallaLogin(
     viewModel: LoginViewModel = viewModel()
 ) {
     val estado = viewModel.uiState
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    Scaffold(containerColor = FondoApp) { relleno ->
+    // Aviso de conexión (por ejemplo, si el servidor no responde).
+    LaunchedEffect(estado.aviso) {
+        estado.aviso?.let { texto ->
+            snackbarHostState.showSnackbar(texto)
+            viewModel.onAvisoMostrado()
+        }
+    }
+
+    Scaffold(
+        containerColor = FondoApp,
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { relleno ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -155,8 +171,8 @@ fun PantallaLogin(
                 Spacer(Modifier.height(14.dp))
 
                 CajaAviso(
-                    texto = "Esta pantalla no tiene autenticación real: no hay servidor ni " +
-                        "usuarios verdaderos. Todos los datos de la aplicación son ficticios."
+                    texto = "Las cuentas se descargan del servidor de la escuela y se " +
+                        "validan en el teléfono. Los datos de la aplicación son ficticios."
                 )
             }
         }

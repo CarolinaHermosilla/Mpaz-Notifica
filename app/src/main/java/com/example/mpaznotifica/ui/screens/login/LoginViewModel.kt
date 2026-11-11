@@ -8,9 +8,20 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mpaznotifica.data.local.AppDatabase
+import com.example.mpaznotifica.data.remoto.ErroresRed
 import com.example.mpaznotifica.data.repositorio.UsuarioRepositorio
+import com.example.mpaznotifica.data.sesion.SesionPreferencias
 import kotlinx.coroutines.launch
 
+/**
+ * Lógica de la pantalla de Login.
+ *
+ * Toda la validación vive acá y no en la pantalla: la vista solamente muestra
+ * el estado y avisa cuando el usuario escribe o presiona un botón.
+ *
+ * Las cuentas se descargan de ms-usuarios y se guardan en SQLite. La validación
+ * del correo y la contraseña se hace contra SQLite, como pide la rúbrica.
+ */
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     private val repositorio = UsuarioRepositorio(
@@ -21,8 +32,16 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         private set
 
     init {
+        // Se descargan las cuentas del servidor: ya no se crean en la aplicación.
         viewModelScope.launch {
-            repositorio.asegurarUsuariosDePrueba()
+            try {
+                repositorio.sincronizarCuentas()
+            } catch (error: Exception) {
+                // Sin red se usan las cuentas que ya estaban guardadas de antes.
+                uiState = uiState.copy(
+                    aviso = "No se pudo conectar. Se usarán las cuentas guardadas."
+                )
+            }
         }
     }
 
@@ -34,6 +53,15 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         uiState = uiState.copy(contrasena = valor, errorContrasena = null)
     }
 
+    fun onAvisoMostrado() {
+        uiState = uiState.copy(aviso = null)
+    }
+
+    /**
+     * Valida los campos y, si están correctos, revisa el usuario en la base local.
+     * Solo si las credenciales coinciden se llama a [onExito], entregándole el id
+     * del usuario que entró: ese id viaja en la ruta de navegación.
+     */
     fun ingresar(onExito: (Int) -> Unit) {
         val correo = uiState.correo.trim()
         val contrasena = uiState.contrasena
@@ -46,10 +74,15 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             return
         }
 
-        uiState = uiState.copy(enviando = true)
+        uiState = uiState.copy(enviando = true, aviso = null)
 
         viewModelScope.launch {
-            repositorio.asegurarUsuariosDePrueba()
+            // Se intenta traer lo último del servidor; si falla, se valida con lo guardado.
+            try {
+                repositorio.sincronizarCuentas()
+            } catch (error: Exception) {
+                uiState = uiState.copy(aviso = ErroresRed.mensaje(error))
+            }
 
             val usuario = repositorio.obtenerPorCorreo(correo)
 
@@ -68,6 +101,14 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
             }
 
             if (usuario != null && usuario.contrasena == contrasena) {
+                // Se guarda la sesión para poder volver a entrar y para cerrar sesión.
+                SesionPreferencias.guardar(
+                    getApplication(),
+                    usuario.id,
+                    usuario.nombre,
+                    usuario.perfil,
+                    usuario.curso
+                )
                 onExito(usuario.id)
             }
         }

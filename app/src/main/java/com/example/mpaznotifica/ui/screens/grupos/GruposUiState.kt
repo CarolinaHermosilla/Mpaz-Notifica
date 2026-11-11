@@ -4,5 +4,6 @@ import com.example.mpaznotifica.data.model.GrupoConIntegrantes
 
 data class GruposUiState(
     val grupos: List<GrupoConIntegrantes> = emptyList(),
-    val cargando: Boolean = true
+    val cargando: Boolean = true,
+    val error: String? = null
 )
