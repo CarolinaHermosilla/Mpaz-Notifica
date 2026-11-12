@@ -2,7 +2,8 @@ package com.example.mpaznotifica.ui.screens.historial
 
 data class HistorialUiState(
     val cargando: Boolean = true,
-    val comunicaciones: List<ComunicacionHistorial> = emptyList()
+    val comunicaciones: List<ComunicacionHistorial> = emptyList(),
+    val error: String? = null
 ) {
     val total: Int get() = comunicaciones.size
 }

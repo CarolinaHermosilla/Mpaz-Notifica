@@ -5,5 +5,6 @@ data class LoginUiState(
     val contrasena: String = "",
     val errorCorreo: String? = null,
     val errorContrasena: String? = null,
-    val enviando: Boolean = false
+    val enviando: Boolean = false,
+    val aviso: String? = null
 )

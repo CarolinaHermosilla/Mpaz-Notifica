@@ -1,11 +1,14 @@
 package com.example.mpaznotifica.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.mpaznotifica.data.sesion.SesionPreferencias
 import com.example.mpaznotifica.ui.screens.comunicacion.PantallaComunicacion
 import com.example.mpaznotifica.ui.screens.destinatarios.PantallaDestinatarios
 import com.example.mpaznotifica.ui.screens.grupos.PantallaGrupos
@@ -37,13 +40,29 @@ object Rutas {
     fun inicio(usuarioId: Int) = "inicio/$usuarioId"
 }
 
+/**
+ * Navegación general de la aplicación.
+ *
+ * Si la persona ya había iniciado sesión, la aplicación arranca en Inicio en vez
+ * del Login. Al cerrar sesión se borra la sesión guardada y se limpia la pila,
+ * para que el botón "atrás" no vuelva a Inicio.
+ */
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
+    val context = LocalContext.current
+
+    val arranque = remember {
+        if (SesionPreferencias.haySesion(context)) {
+            Rutas.inicio(SesionPreferencias.usuarioId(context))
+        } else {
+            Rutas.LOGIN
+        }
+    }
 
     NavHost(
         navController = navController,
-        startDestination = Rutas.LOGIN
+        startDestination = arranque
     ) {
         composable(Rutas.LOGIN) {
             PantallaLogin(
@@ -110,7 +129,7 @@ fun AppNavigation() {
                 onVerHistorial = { navController.navigate(Rutas.HISTORIAL) },
                 onCerrarSesion = {
                     navController.navigate(Rutas.LOGIN) {
-                        popUpTo(Rutas.INICIO) { inclusive = true }
+                        popUpTo(0) { inclusive = true }
                     }
                 }
             )

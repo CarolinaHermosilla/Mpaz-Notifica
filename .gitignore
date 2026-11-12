@@ -11,5 +11,9 @@
 local.properties
 # Las versiones de prueba de la aplicación no se suben: se instalan desde el archivo APK
 *.apk
+# Llave de firma del APK: nunca se sube al repositorio
+*.jks
+*.keystore
+keystore.properties
 # Carpeta de trabajo interno (scripts temporales y borradores del PDF): no se sube al repositorio
 /_tools

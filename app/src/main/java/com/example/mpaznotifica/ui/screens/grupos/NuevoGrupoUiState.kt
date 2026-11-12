@@ -13,6 +13,9 @@ data class NuevoGrupoUiState(
     val errorNombre: String? = null,
     val errorIntegrantes: String? = null,
 
+    /** Aviso cuando no se pudo conectar con el servidor. */
+    val error: String? = null,
+
     val guardando: Boolean = false,
     val cargando: Boolean = true
 ) {

@@ -8,8 +8,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.mpaznotifica.data.local.AppDatabase
+import com.example.mpaznotifica.data.remoto.ErroresRed
 import com.example.mpaznotifica.data.repositorio.ComunicacionRepositorio
 import com.example.mpaznotifica.data.repositorio.UsuarioRepositorio
+import com.example.mpaznotifica.data.sesion.SesionPreferencias
 import kotlinx.coroutines.launch
 
 class ComunicacionViewModel(application: Application) : AndroidViewModel(application) {
@@ -159,14 +161,25 @@ class ComunicacionViewModel(application: Application) : AndroidViewModel(applica
         uiState = uiState.copy(mostrarVistaPrevia = false)
 
         viewModelScope.launch {
-            comunicacionRepositorio.guardarBorrador(
-                titulo = titulo,
-                mensaje = mensaje,
-                tipo = uiState.tipoSeleccionado,
-                adjuntos = uiState.adjuntos.map { it.nombre },
-                usuarioId = usuarioId
-            )
-            onContinuar()
+            try {
+                // El borrador se crea en ms-mensajeria: su id es la llave para enviarlo.
+                val borrador = comunicacionRepositorio.crearBorrador(
+                    titulo = titulo,
+                    mensaje = mensaje,
+                    tipo = uiState.tipoSeleccionado,
+                    adjuntos = uiState.adjuntos.map { it.nombre },
+                    remitenteId = usuarioId,
+                    remitenteNombre = uiState.firma
+                )
+
+                // Se guarda el id para que Destinatarios lo encuentre sin cambiar la navegación.
+                SesionPreferencias.guardarBorradorId(getApplication(), borrador.id.toInt())
+                onContinuar()
+            } catch (error: Exception) {
+                uiState = uiState.copy(
+                    aviso = ErroresRed.mensaje(error)
+                )
+            }
         }
     }
 }

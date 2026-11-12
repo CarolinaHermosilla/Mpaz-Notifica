@@ -81,6 +81,14 @@ fun PantallaGrupos(
         }
     }
 
+    // Aviso cuando el servidor no responde (cargar o eliminar).
+    LaunchedEffect(estado.error) {
+        estado.error?.let { texto ->
+            snackbarHostState.showSnackbar(texto)
+            viewModel.onErrorMostrado()
+        }
+    }
+
     Scaffold(
         containerColor = FondoApp,
         snackbarHost = { SnackbarHost(snackbarHostState) },

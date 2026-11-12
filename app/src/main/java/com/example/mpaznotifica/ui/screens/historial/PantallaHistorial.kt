@@ -89,13 +89,12 @@ fun PantallaHistorial(
                 Spacer(Modifier.height(16.dp))
 
                 CajaInformativa(
-                    texto = if (estado.cargando) {
-                        "Revisando las comunicaciones guardadas en el teléfono."
-                    } else {
-                        "Se han enviado ${estado.total} " +
+                    texto = when {
+                        estado.cargando -> "Revisando las comunicaciones enviadas."
+                        estado.error != null -> estado.error.orEmpty()
+                        else -> "Se han enviado ${estado.total} " +
                             (if (estado.total == 1) "comunicación" else "comunicaciones") +
-                            ". Cada envío queda guardado en el teléfono, incluso al cerrar " +
-                            "la aplicación."
+                            ". Cada envío queda registrado en el servidor de la escuela."
                     }
                 )
 
@@ -103,6 +102,11 @@ fun PantallaHistorial(
 
                 when {
                     estado.cargando -> CargandoHistorial()
+
+                    estado.error != null -> SinComunicaciones(
+                        titulo = "No se pudo cargar el historial",
+                        detalle = "Revisa tu conexión y vuelve a entrar a la pantalla."
+                    )
 
                     estado.comunicaciones.isEmpty() -> SinComunicaciones()
 
@@ -153,7 +157,11 @@ private fun CargandoHistorial() {
 }
 
 @Composable
-private fun SinComunicaciones() {
+private fun SinComunicaciones(
+    titulo: String = "Todavía no hay comunicaciones enviadas",
+    detalle: String = "Cuando envíes una comunicación, aparecerá en esta lista con su " +
+        "fecha, su canal y sus destinatarios."
+) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -178,7 +186,7 @@ private fun SinComunicaciones() {
         }
         Spacer(Modifier.height(14.dp))
         Text(
-            text = "Todavía no hay comunicaciones enviadas",
+            text = titulo,
             color = TextoPrincipal,
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
@@ -186,8 +194,7 @@ private fun SinComunicaciones() {
         )
         Spacer(Modifier.height(6.dp))
         Text(
-            text = "Cuando envíes una comunicación, aparecerá en esta lista con su fecha, " +
-                "su canal y sus destinatarios.",
+            text = detalle,
             color = TextoSecundario,
             fontSize = 14.sp,
             textAlign = TextAlign.Center

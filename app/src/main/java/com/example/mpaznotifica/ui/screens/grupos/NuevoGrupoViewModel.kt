@@ -6,34 +6,46 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.mpaznotifica.data.local.AppDatabase
+import com.example.mpaznotifica.data.remoto.ErroresRed
 import com.example.mpaznotifica.data.repositorio.GrupoRepositorio
 import kotlinx.coroutines.launch
 
+/**
+ * Lógica de la pantalla de creación de grupos.
+ *
+ * Los apoderados vienen de ms-usuarios y el grupo se crea en el mismo servidor.
+ * El nombre repetido lo valida el servidor y su mensaje se muestra tal cual.
+ */
 class NuevoGrupoViewModel(application: Application) : AndroidViewModel(application) {
 
-    private val baseDatos = AppDatabase.getDatabase(application)
-    private val repositorio = GrupoRepositorio(
-        grupoDao = baseDatos.grupoDao(),
-        apoderadoDao = baseDatos.apoderadoDao()
-    )
+    private val repositorio = GrupoRepositorio()
 
     var uiState by mutableStateOf(NuevoGrupoUiState())
         private set
 
     fun cargar() {
         viewModelScope.launch {
-            repositorio.asegurarDatosDePrueba()
-            uiState = uiState.copy(
-                apoderados = repositorio.obtenerApoderados(),
-                gruposExistentes = repositorio.obtenerGruposConIntegrantes(),
-                cargando = false
-            )
+            try {
+                uiState = uiState.copy(
+                    apoderados = repositorio.obtenerApoderados(),
+                    gruposExistentes = repositorio.obtenerGruposConIntegrantes(),
+                    cargando = false
+                )
+            } catch (error: Exception) {
+                uiState = uiState.copy(
+                    cargando = false,
+                    error = ErroresRed.mensaje(error)
+                )
+            }
         }
     }
 
     fun onNombreCambia(valor: String) {
         uiState = uiState.copy(nombre = valor, errorNombre = null)
+    }
+
+    fun onErrorMostrado() {
+        uiState = uiState.copy(error = null)
     }
 
     fun onDescripcionCambia(valor: String) {
@@ -67,22 +79,20 @@ class NuevoGrupoViewModel(application: Application) : AndroidViewModel(applicati
         uiState = uiState.copy(guardando = true)
 
         viewModelScope.launch {
-            if (repositorio.existeGrupoConNombre(nombre)) {
+            try {
+                repositorio.crearGrupo(
+                    nombre = nombre,
+                    descripcion = uiState.descripcion,
+                    idsApoderados = uiState.idsSeleccionados.toList()
+                )
+                uiState = uiState.copy(guardando = false)
+                onExito()
+            } catch (error: Exception) {
                 uiState = uiState.copy(
                     guardando = false,
-                    errorNombre = "Ya existe un grupo con ese nombre."
+                    errorNombre = ErroresRed.mensaje(error)
                 )
-                return@launch
             }
-
-            repositorio.crearGrupo(
-                nombre = nombre,
-                descripcion = uiState.descripcion,
-                idsApoderados = uiState.idsSeleccionados.toList()
-            )
-
-            uiState = uiState.copy(guardando = false)
-            onExito()
         }
     }
 }

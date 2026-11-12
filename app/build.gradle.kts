@@ -4,6 +4,11 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+// Datos de la llave con la que se firma el APK de entrega.
+// El archivo keystore.properties y la llave .jks no se suben al repositorio.
+val archivoFirma = rootProject.file("keystore.properties")
+val tieneFirma = archivoFirma.exists()
+
 android {
     namespace = "com.example.mpaznotifica"
     compileSdk {
@@ -26,6 +31,17 @@ android {
         release {
             optimization {
                 enable = false
+            }
+
+            // La llave se lee de keystore.properties; sin ese archivo el APK de
+            // release queda sin firmar, y la build de debug no se ve afectada.
+            if (tieneFirma) {
+                signingConfig = signingConfigs.create("release") {
+                    storeFile = rootProject.file("mpaz-release.jks")
+                    storePassword = "MpazNotifica2026"
+                    keyAlias = "mpaz"
+                    keyPassword = "MpazNotifica2026"
+                }
             }
         }
     }
@@ -54,6 +70,11 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.coil.compose)
+
+    // Conexión con los microservicios del backend (Retrofit + JSON + registro de peticiones)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.gson)
+    implementation(libs.okhttp.logging)
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
